@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
+using System.Diagnostics;
 using Elasticsearch.Net;
 using Nest;
 
@@ -40,9 +40,9 @@ namespace Bulkzor
 
             return new BulkTask<T>(bulkConfiguration.GetNodes
                 ,(ISource<T>)bulkConfiguration.GetSource
-                , bulkConfiguration.GetIndexName
-                , bulkConfiguration.GetTypeName
-                , bulkConfiguration.GetBulkSize == 0 ? 1000 : bulkConfiguration.GetBulkSize
+                , bulkConfiguration.GetIndexName ?? $"{nameof(T)}s" 
+                , bulkConfiguration.GetTypeName ?? nameof(T)
+                , bulkConfiguration.GetBulkSize == 0 ? 500 : bulkConfiguration.GetBulkSize
                 , bulkConfiguration.GetBeforeBulkTaskRun
                 , bulkConfiguration.GetAfterBulkTaskRun
                 , bulkConfiguration.GetOnBulkTaskError
@@ -55,6 +55,7 @@ namespace Bulkzor
             {
                 var pool = new StaticConnectionPool(_nodes);
                 var settings = new ConnectionSettings(pool);
+
                 var client = new ElasticClient(settings);
 
                 var startFrom = 0;
@@ -66,21 +67,23 @@ namespace Bulkzor
 
                 var source = _source as IManagedSource<T>;
 
+                var watch = new Stopwatch();
+
+                var bulkWatch = new Stopwatch();
+
                 source?.OpenConnection();
+
+                watch.Start();
+
+                bulkWatch.Start();
 
                 foreach (var workingResult in _source.GetData())
                 {
-                    if (startFrom > _bulkSize)
+                    if (startFrom >= _bulkSize)
                     {
                         startFrom = 0;
 
-                        client.IndexMany(workingResults, _indexName, _typeName);
-
-                        _onBulkIndexed?.Invoke(workingResults.Count, _indexName, _typeName);
-
-                        documentsIndexed += workingResults.Count;
-
-                        workingResults.Clear();
+                        documentsIndexed += IndexWorkingResults(client, workingResults, watch);
                     }
 
                     workingResults.Add(workingResult);
@@ -88,15 +91,13 @@ namespace Bulkzor
                     startFrom++;
                 }
 
-                client.IndexMany(workingResults, _indexName, _typeName);
-
-                documentsIndexed += workingResults.Count;
+                documentsIndexed += IndexWorkingResults(client, workingResults, watch);
 
                 source?.CloseConnection();
 
-                workingResults.Clear();
+                bulkWatch.Stop();
 
-                _afterBulkTaskRun?.Invoke(client, _indexName, _typeName, documentsIndexed);
+                _afterBulkTaskRun?.Invoke(client, _indexName, _typeName, documentsIndexed, bulkWatch.Elapsed);
             }
             catch (Exception ex)
             {
@@ -107,6 +108,28 @@ namespace Bulkzor
 
                 _onBulkTaskError?.Invoke(ex);
             }
+        }
+
+        private int IndexWorkingResults(ElasticClient client, ICollection<T> workingResults, Stopwatch watch)
+        {
+            var response = client.IndexMany(workingResults, _indexName, _typeName);
+            
+            if (!response.ApiCall.Success)
+            {
+                
+            }
+
+            watch.Stop();
+
+            _onBulkIndexed?.Invoke(workingResults.Count, _indexName, _typeName, watch.Elapsed);
+
+            var documentsIndexed = workingResults.Count;
+
+            workingResults.Clear();
+
+            watch.Restart();
+
+            return documentsIndexed;
         }
     }
 }
