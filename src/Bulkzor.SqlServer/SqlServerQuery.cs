@@ -5,47 +5,35 @@ using Dapper;
 namespace Bulkzor.SqlServer
 {
     public class SqlServerQuery<T>
-        : ISource<T>
+        : IManagedSource<T>
         where T:class 
     {
         private readonly string _connectionString;
         private readonly string _sql;
+        private readonly bool _buffered;
+        private SqlConnection _connection;
 
-        public SqlServerQuery(string connectionString, string sql)
+        public SqlServerQuery(string connectionString, string sql, bool buffered = false)
         {
             _connectionString = connectionString;
             _sql = sql;
+            _buffered = buffered;
+        }
+
+        public void OpenConnection()
+        {
+            _connection = new SqlConnection(_connectionString);
+            _connection.Open();
         }
 
         public IEnumerable<T> GetData()
         {
-            var connection = new SqlConnection(_connectionString);
-            
-            connection.Open();
+            return _connection.Query<T>(_sql, buffered: _buffered);
+        }
 
-            var result = connection.Query<T>(_sql, buffered:false);
-
-            //var cmd = new SqlCommand(_sql);
-
-            //using (var cmdDataReader = cmd.ExecuteReader())
-            //{
-            //    while (cmdDataReader.Read())
-            //    {
-                    
-            //        //var jsonObject = new JObject();
-
-            //        //for (var i = 0; i < cmdDataReader.FieldCount; i++)
-            //        //{
-            //        //    jsonObject[cmdDataReader.GetName(i)] = new JValue(cmdDataReader.GetValue(i));
-            //        //}
-
-            //        //yield return jsonObject;
-            //    }
-            //}
-
-            connection.Close();
-
-            return result;
+        public void CloseConnection()
+        {
+            _connection.Close();
         }
     }
 }

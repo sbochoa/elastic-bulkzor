@@ -52,9 +52,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AfterBulkTaskRun.cs" />
+    <Compile Include="BeforeBulkTaskRun.cs" />
+    <Compile Include="BulkTask.cs" />
+    <Compile Include="BulkTaskConfiguration.cs" />
     <Compile Include="Bulkzor.cs" />
-    <Compile Include="BulkzorConfiguration.cs" />
+    <Compile Include="IBulkTask.cs" />
     <Compile Include="ISource.cs" />
+    <Compile Include="OnBulkIndexed.cs" />
+    <Compile Include="OnBulkTaskError.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

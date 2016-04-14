@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 
 namespace Bulkzor
 {
@@ -7,5 +6,12 @@ namespace Bulkzor
         where T:class
     {
         IEnumerable<T> GetData();
+    }
+
+    public interface IManagedSource<out T> : ISource<T>
+        where T:class
+    {
+        void OpenConnection();
+        void CloseConnection();
     }
 }
