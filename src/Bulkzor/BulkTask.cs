@@ -1,36 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Elasticsearch.Net;
-using Nest;
+using Bulkzor.Configuration;
+using Bulkzor.Events;
+using Bulkzor.Indexers;
 
 namespace Bulkzor
 {
     public class BulkTask<T> : IBulkTask
         where T:class
     {
-        private readonly Uri[] _nodes;
         private readonly ISource<T> _source;
         private readonly string _indexName;
         private readonly string _typeName;
-        private readonly int _bulkSize;
         private readonly BeforeBulkTaskRun _beforeBulkTaskRun;
         private readonly AfterBulkTaskRun _afterBulkTaskRun;
         private readonly OnBulkTaskError _onBulkTaskError;
-        private readonly OnBulkIndexed _onBulkIndexed;
+        private readonly IIndexDocuments _indexDocuments;
 
-        private BulkTask(Uri[] nodes, ISource<T> source, string indexName, string typeName, int bulkSize
-            , BeforeBulkTaskRun beforeBulkTaskRun, AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError, OnBulkIndexed onBulkIndexed)
+        private BulkTask(ISource<T> source, string indexName, string typeName, BeforeBulkTaskRun beforeBulkTaskRun, AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError, IIndexDocuments indexDocuments)
         {
-            _nodes = nodes;
             _source = source;
             _indexName = indexName;
             _typeName = typeName;
-            _bulkSize = bulkSize;
             _beforeBulkTaskRun = beforeBulkTaskRun;
             _afterBulkTaskRun = afterBulkTaskRun;
             _onBulkTaskError = onBulkTaskError;
-            _onBulkIndexed = onBulkIndexed;
+            _indexDocuments = indexDocuments;
         }
 
         public static BulkTask<T> ConfigureWith(Action<BulkTaskConfiguration<T>> configuration)
@@ -38,66 +32,30 @@ namespace Bulkzor
             var bulkConfiguration = new BulkTaskConfiguration<T>();
             configuration(bulkConfiguration);
 
-            return new BulkTask<T>(bulkConfiguration.GetNodes
-                ,(ISource<T>)bulkConfiguration.GetSource
-                , bulkConfiguration.GetIndexName ?? $"{nameof(T)}s" 
-                , bulkConfiguration.GetTypeName ?? nameof(T)
-                , bulkConfiguration.GetBulkSize == 0 ? 500 : bulkConfiguration.GetBulkSize
+            return new BulkTask<T>((ISource<T>)bulkConfiguration.GetSource
+                , bulkConfiguration.GetIndexName 
+                , bulkConfiguration.GetTypeName
                 , bulkConfiguration.GetBeforeBulkTaskRun
                 , bulkConfiguration.GetAfterBulkTaskRun
                 , bulkConfiguration.GetOnBulkTaskError
-                , bulkConfiguration.GetOnBulkIndexed);
+                , bulkConfiguration.GetDocumentIndexer());
         }  
 
         public void Run()
         {
             try
             {
-                var pool = new StaticConnectionPool(_nodes);
-                var settings = new ConnectionSettings(pool);
-
-                var client = new ElasticClient(settings);
-
-                var startFrom = 0;
-                var documentsIndexed = 0;
-
-                var workingResults = new List<T>();
-
-                _beforeBulkTaskRun?.Invoke(client, _indexName, _typeName);
+                _beforeBulkTaskRun?.Invoke(_indexDocuments, _indexName, _typeName);
 
                 var source = _source as IManagedSource<T>;
 
-                var watch = new Stopwatch();
-
-                var bulkWatch = new Stopwatch();
-
                 source?.OpenConnection();
 
-                watch.Start();
-
-                bulkWatch.Start();
-
-                foreach (var workingResult in _source.GetData())
-                {
-                    if (startFrom >= _bulkSize)
-                    {
-                        startFrom = 0;
-
-                        documentsIndexed += IndexWorkingResults(client, workingResults, watch);
-                    }
-
-                    workingResults.Add(workingResult);
-
-                    startFrom++;
-                }
-
-                documentsIndexed += IndexWorkingResults(client, workingResults, watch);
+                var result = _indexDocuments.Index(_source.GetData(), _indexName, _typeName);
 
                 source?.CloseConnection();
 
-                bulkWatch.Stop();
-
-                _afterBulkTaskRun?.Invoke(client, _indexName, _typeName, documentsIndexed, bulkWatch.Elapsed);
+                _afterBulkTaskRun?.Invoke(_indexDocuments, _indexName, _typeName, result.TotalDocumentsIndexed, result.TimeElapsed);
             }
             catch (Exception ex)
             {
@@ -108,28 +66,6 @@ namespace Bulkzor
 
                 _onBulkTaskError?.Invoke(ex);
             }
-        }
-
-        private int IndexWorkingResults(ElasticClient client, ICollection<T> workingResults, Stopwatch watch)
-        {
-            var response = client.IndexMany(workingResults, _indexName, _typeName);
-            
-            if (!response.ApiCall.Success)
-            {
-                
-            }
-
-            watch.Stop();
-
-            _onBulkIndexed?.Invoke(workingResults.Count, _indexName, _typeName, watch.Elapsed);
-
-            var documentsIndexed = workingResults.Count;
-
-            workingResults.Clear();
-
-            watch.Restart();
-
-            return documentsIndexed;
         }
     }
 }
