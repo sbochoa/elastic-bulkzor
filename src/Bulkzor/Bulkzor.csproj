@@ -55,16 +55,18 @@
     <Compile Include="Callbacks\AfterBulkTaskRun.cs" />
     <Compile Include="Callbacks\BeforeBulkTaskRun.cs" />
     <Compile Include="BulkTask.cs" />
+    <Compile Include="Commands\BulkDocuments.cs" />
+    <Compile Include="Commands\IndexChunkInParts.cs" />
+    <Compile Include="Commands\IndexChunk.cs" />
     <Compile Include="Configuration\BulkTaskConfiguration.cs" />
     <Compile Include="Bulkzor.cs" />
     <Compile Include="Configuration\ChunkConfiguration.cs" />
-    <Compile Include="Events\MaxLengthExceeded.cs" />
     <Compile Include="Handlers\IHandle.cs" />
-    <Compile Include="Handlers\MaxLengthExceededHandler.cs" />
-    <Compile Include="Indexers\NestDocumentIndexer - Copy.cs" />
+    <Compile Include="Handlers\BulkDocumentsHandler.cs" />
+    <Compile Include="Handlers\IndexChunkHandler.cs" />
+    <Compile Include="Handlers\IndexChunkInPartsHandler.cs" />
     <Compile Include="IProcessBulk.cs" />
     <Compile Include="Results\IndexResult.cs" />
-    <Compile Include="Results\DocumentIndexingResult.cs" />
     <Compile Include="IBulkTask.cs" />
     <Compile Include="Indexers\IDocumentsIndexer.cs" />
     <Compile Include="ISource.cs" />
@@ -72,7 +74,7 @@
     <Compile Include="Callbacks\OnChunkIndexed.cs" />
     <Compile Include="Callbacks\OnBulkTaskError.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Types\IndexationError.cs" />
+    <Compile Include="Types\IndexingError.cs" />
     <Compile Include="Utils\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>

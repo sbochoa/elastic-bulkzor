@@ -4,18 +4,17 @@ namespace Bulkzor.Configuration
 {
     public class ChunkConfiguration
     {
-        private int _chunkSize;
-        private int _chunkRetries;
+        private int? _chunkSize;
+        private int? _chunkRetries;
         private OnChunkIndexed _onChunkIndexed;
-        private bool _partChunkWhenFail;
-        private int _numberPartsToDivideWhenChunkFail;
+        private bool? _partChunkWhenFail;
+        private int? _numberPartsToDivideWhenChunkFail;
 
-        internal int GetChunkSize => _chunkSize == 0 ? 500 : _chunkSize;
-        internal int GetChunkRetries => _chunkRetries == 0 ? 5 : _chunkRetries;
+        internal int GetChunkSize => _chunkSize ?? 1000;
+        internal int GetChunkRetries => _chunkRetries ?? 5;
         internal OnChunkIndexed GetOnChunkIndexed => _onChunkIndexed;
-        internal bool GetPartChunkWhenFail => _partChunkWhenFail;
-        internal int GetNumberPartsToDivideWhenChunkFail
-            => _numberPartsToDivideWhenChunkFail == 0 ? 5 : _numberPartsToDivideWhenChunkFail;
+        internal bool GetPartChunkWhenFail => _partChunkWhenFail ?? true;
+        internal int GetNumberPartsToDivideWhenChunkFail => _numberPartsToDivideWhenChunkFail ?? 5;
 
         public ChunkConfiguration ChunkSize(int chunkSize)
         {
@@ -35,7 +34,7 @@ namespace Bulkzor.Configuration
             return this;
         }
 
-        public void PartChunkWhenFail(bool partChunkWhenFail = true)
+        public void PartChunkWhenFail(bool partChunkWhenFail)
         {
             _partChunkWhenFail = partChunkWhenFail;
         }

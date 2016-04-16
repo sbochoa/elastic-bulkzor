@@ -1,9 +1,10 @@
 ﻿namespace Bulkzor.Types
 {
-    public enum IndexationError
+    public enum IndexingError
     {
         None,
         Unknow,
+        OnlyPartOfDocumentsIndexed,
         LengthExceeded
     }
 }

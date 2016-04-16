@@ -1,7 +1,10 @@
 ﻿using System;
 using Bulkzor.Callbacks;
+using Bulkzor.Commands;
 using Bulkzor.Configuration;
+using Bulkzor.Handlers;
 using Bulkzor.Indexers;
+using Bulkzor.Results;
 
 namespace Bulkzor
 {
@@ -14,9 +17,15 @@ namespace Bulkzor
         private readonly BeforeBulkTaskRun _beforeBulkTaskRun;
         private readonly AfterBulkTaskRun _afterBulkTaskRun;
         private readonly OnBulkTaskError _onBulkTaskError;
-        private readonly IDocumentsIndexer _documentsIndexer;
+        private readonly ChunkConfiguration _chunkConfiguration;
+        private readonly IHandle<BulkDocuments<T>, IndexResult> _bulkDocumentsHandler;
+        private readonly IDocumentsIndexer _documentIndexer;
 
-        private BulkTask(ISource<T> source, string indexName, string typeName, BeforeBulkTaskRun beforeBulkTaskRun, AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError, IDocumentsIndexer documentsIndexer)
+        private BulkTask(ISource<T> source, string indexName, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
+            , AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError
+            , ChunkConfiguration chunkConfiguration
+            , IHandle<BulkDocuments<T>, IndexResult> bulkDocumentsHandler
+            , IDocumentsIndexer documentIndexer)
         {
             _source = source;
             _indexName = indexName;
@@ -24,7 +33,9 @@ namespace Bulkzor
             _beforeBulkTaskRun = beforeBulkTaskRun;
             _afterBulkTaskRun = afterBulkTaskRun;
             _onBulkTaskError = onBulkTaskError;
-            _documentsIndexer = documentsIndexer;
+            _chunkConfiguration = chunkConfiguration;
+            _bulkDocumentsHandler = bulkDocumentsHandler;
+            _documentIndexer = documentIndexer;
         }
 
         public static BulkTask<T> ConfigureWith(Action<BulkTaskConfiguration<T>> configuration)
@@ -38,24 +49,28 @@ namespace Bulkzor
                 , bulkConfiguration.GetBeforeBulkTaskRun
                 , bulkConfiguration.GetAfterBulkTaskRun
                 , bulkConfiguration.GetOnBulkTaskError
-                , bulkConfiguration.GetDocumentIndexer());
+                , bulkConfiguration.ChunkConfiguration
+                , bulkConfiguration.GetBulkDocumentsHandler
+                , bulkConfiguration.GetDocumentIndexer);
         }  
 
         public void Run()
         {
             try
             {
-                _beforeBulkTaskRun?.Invoke(_documentsIndexer, _indexName, _typeName);
+                _beforeBulkTaskRun?.Invoke(_documentIndexer, _indexName, _typeName);
 
                 var source = _source as IManagedSource<T>;
 
                 source?.OpenConnection();
 
-                var result = _documentsIndexer.Index(_source.GetData(), _indexName, _typeName);
+                var result = 
+                    _bulkDocumentsHandler
+                        .Handle(new BulkDocuments<T>(_source.GetData(), _indexName, _typeName, _chunkConfiguration));
 
                 source?.CloseConnection();
 
-                _afterBulkTaskRun?.Invoke(_documentsIndexer, _indexName, _typeName, result.TotalDocumentsIndexed, result.TimeElapsed);
+                _afterBulkTaskRun?.Invoke(_documentIndexer, _indexName, _typeName, result);
             }
             catch (Exception ex)
             {
