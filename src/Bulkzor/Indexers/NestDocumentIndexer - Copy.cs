@@ -8,15 +8,15 @@ using Nest;
 
 namespace Bulkzor.Indexers
 {
-    public class NestIndexDocumentsV2
-        : IIndexDocuments
+    public class NestDocumentsIndexerV2
+        : IDocumentsIndexer
     {
         private readonly ElasticClient _client;
         private readonly ChunkConfiguration _chunkConfiguration;
 
         public ElasticClient Client => _client;
 
-        public NestIndexDocumentsV2(ElasticClient client, ChunkConfiguration chunkConfiguration)
+        public NestDocumentsIndexerV2(ElasticClient client, ChunkConfiguration chunkConfiguration)
         {
             _client = client;
             _chunkConfiguration = chunkConfiguration;

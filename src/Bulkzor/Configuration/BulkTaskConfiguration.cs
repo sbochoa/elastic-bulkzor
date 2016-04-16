@@ -1,9 +1,10 @@
 ﻿using System;
-using Bulkzor.Events;
+using Bulkzor.Callbacks;
+using Bulkzor.Indexers;
 using Elasticsearch.Net;
 using Nest;
 
-namespace Bulkzor
+namespace Bulkzor.Configuration
 {
     public class BulkTaskConfiguration<T>
         where T : class
@@ -15,7 +16,7 @@ namespace Bulkzor
         private BeforeBulkTaskRun _beforeBulkTaskRun;
         private AfterBulkTaskRun _afterBulkTaskRun;
         private OnBulkTaskError _onBulkTaskError;
-        private IDocumentIndexer _documentIndexer;
+        private IDocumentsIndexer _documentsIndexer;
         private ChunkConfiguration _chunkConfiguration;
 
         internal object GetSource => _source;
@@ -27,13 +28,13 @@ namespace Bulkzor
         internal OnBulkTaskError GetOnBulkTaskError => _onBulkTaskError;
         public ChunkConfiguration ChunkConfiguration => _chunkConfiguration ?? (_chunkConfiguration = new ChunkConfiguration());
 
-        internal IDocumentIndexer GetDocumentIndexer()
+        internal IDocumentsIndexer GetDocumentIndexer()
         {
-            if (_documentIndexer == null)
+            if (_documentsIndexer == null)
             {
                 UsingNestDocumentIndexer();
             }
-            return _documentIndexer;
+            return _documentsIndexer;
         }
 
         public BulkTaskConfiguration<T> Nodes(params Uri[] nodes)
@@ -77,9 +78,9 @@ namespace Bulkzor
             return this;
         }
 
-        public BulkTaskConfiguration<T> UsingCustomDocumentIndexer(IDocumentIndexer documentIndexer)
+        public BulkTaskConfiguration<T> UsingCustomDocumentIndexer(IDocumentsIndexer documentsIndexer)
         {
-            _documentIndexer = documentIndexer;
+            _documentsIndexer = documentsIndexer;
             return this;
         }
 
@@ -90,7 +91,7 @@ namespace Bulkzor
 
             var client = new ElasticClient(settings);
 
-            _documentIndexer = new NestDocumentIndexer(client, ChunkConfiguration);
+            _documentsIndexer = new NestDocumentsIndexer(client, ChunkConfiguration);
             return this;
         }
     }

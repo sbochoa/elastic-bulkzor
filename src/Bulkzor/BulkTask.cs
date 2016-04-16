@@ -1,6 +1,6 @@
 ﻿using System;
+using Bulkzor.Callbacks;
 using Bulkzor.Configuration;
-using Bulkzor.Events;
 using Bulkzor.Indexers;
 
 namespace Bulkzor
@@ -14,9 +14,9 @@ namespace Bulkzor
         private readonly BeforeBulkTaskRun _beforeBulkTaskRun;
         private readonly AfterBulkTaskRun _afterBulkTaskRun;
         private readonly OnBulkTaskError _onBulkTaskError;
-        private readonly IIndexDocuments _indexDocuments;
+        private readonly IDocumentsIndexer _documentsIndexer;
 
-        private BulkTask(ISource<T> source, string indexName, string typeName, BeforeBulkTaskRun beforeBulkTaskRun, AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError, IIndexDocuments indexDocuments)
+        private BulkTask(ISource<T> source, string indexName, string typeName, BeforeBulkTaskRun beforeBulkTaskRun, AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError, IDocumentsIndexer documentsIndexer)
         {
             _source = source;
             _indexName = indexName;
@@ -24,7 +24,7 @@ namespace Bulkzor
             _beforeBulkTaskRun = beforeBulkTaskRun;
             _afterBulkTaskRun = afterBulkTaskRun;
             _onBulkTaskError = onBulkTaskError;
-            _indexDocuments = indexDocuments;
+            _documentsIndexer = documentsIndexer;
         }
 
         public static BulkTask<T> ConfigureWith(Action<BulkTaskConfiguration<T>> configuration)
@@ -45,17 +45,17 @@ namespace Bulkzor
         {
             try
             {
-                _beforeBulkTaskRun?.Invoke(_indexDocuments, _indexName, _typeName);
+                _beforeBulkTaskRun?.Invoke(_documentsIndexer, _indexName, _typeName);
 
                 var source = _source as IManagedSource<T>;
 
                 source?.OpenConnection();
 
-                var result = _indexDocuments.Index(_source.GetData(), _indexName, _typeName);
+                var result = _documentsIndexer.Index(_source.GetData(), _indexName, _typeName);
 
                 source?.CloseConnection();
 
-                _afterBulkTaskRun?.Invoke(_indexDocuments, _indexName, _typeName, result.TotalDocumentsIndexed, result.TimeElapsed);
+                _afterBulkTaskRun?.Invoke(_documentsIndexer, _indexName, _typeName, result.TotalDocumentsIndexed, result.TimeElapsed);
             }
             catch (Exception ex)
             {

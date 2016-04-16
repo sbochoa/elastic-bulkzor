@@ -8,13 +8,13 @@ using Nest;
 
 namespace Bulkzor.Indexers
 {
-    public class NestDocumentIndexer
-        : IDocumentIndexer
+    public class NestDocumentsIndexer
+        : IDocumentsIndexer
     {
         private readonly ElasticClient _client;
         public ElasticClient Client => _client;
 
-        public NestDocumentIndexer(ElasticClient client)
+        public NestDocumentsIndexer(ElasticClient client)
         {
             _client = client;
         }
