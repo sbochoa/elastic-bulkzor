@@ -25,9 +25,15 @@ namespace Bulkzor.Indexers
 
             IndexingError indexingError;
 
+            // for now this is the only way we can at least guess it was a Length exceeded error
+            // so it worth the try to chunk in parts when this happens
             if (!response.ApiCall.Success)
             {
                 indexingError = IndexingError.LengthExceeded;
+            }
+            else if(response.ItemsWithErrors.Any())
+            {
+                indexingError = IndexingError.OnlyPartOfDocumentsIndexed;
             }
             else if (response.Errors)
             {

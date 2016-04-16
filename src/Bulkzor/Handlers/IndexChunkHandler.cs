@@ -15,13 +15,16 @@ namespace Bulkzor.Handlers
     {
         private readonly IDocumentsIndexer _documentsIndexer;
         private readonly IHandle<IndexChunkInParts<TDocument>, IndexResult> _indexDocumentsChunkInPartsHandler;
+        private readonly IHandle<StoreDocumentsNotIndexed<TDocument>, IndexResult> _storeDocumentsNotIndexedHandler;
 
         public IndexChunkHandler
             (IDocumentsIndexer documentsIndexer
-            , IHandle<IndexChunkInParts<TDocument>, IndexResult> indexDocumentsChunkInPartsHandler)
+            , IHandle<IndexChunkInParts<TDocument>, IndexResult> indexDocumentsChunkInPartsHandler
+            , IHandle<StoreDocumentsNotIndexed<TDocument>, IndexResult> storeDocumentsNotIndexedHandler)
         {
             _documentsIndexer = documentsIndexer;
             _indexDocumentsChunkInPartsHandler = indexDocumentsChunkInPartsHandler;
+            _storeDocumentsNotIndexedHandler = storeDocumentsNotIndexedHandler;
         }
 
         public IndexResult Handle(IndexChunk<TDocument> message)
@@ -57,11 +60,9 @@ namespace Bulkzor.Handlers
                                 .Handle(new IndexChunkInParts<TDocument>
                                             (documentsChunk, indexName, typeName, chunkConfiguration.GetNumberPartsToDivideWhenChunkFail));
                 case IndexingError.Unknow:
-                    //TODO: unknow error handler 
-                    return null;
                 case IndexingError.OnlyPartOfDocumentsIndexed:
-                    //TODO: only part of documents handler
-                    return null;
+                    return _storeDocumentsNotIndexedHandler
+                        .Handle(new StoreDocumentsNotIndexed<TDocument>(documentsChunk, indexName, typeName));
             }
 
             throw new ArgumentException(nameof(error));
