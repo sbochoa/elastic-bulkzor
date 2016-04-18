@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Bulkzor.Results;
+using Bulkzor.Storage;
 using Bulkzor.Types;
 
 namespace Bulkzor.Indexers
@@ -8,11 +9,13 @@ namespace Bulkzor.Indexers
         : IIndexDataChunk
     {
         private readonly IIndexDocuments _documentsIndexer;
-        private const int PartsQuantity = 3;
+        private readonly IStoreDocuments _documentsStorage;
+        private static readonly int PartsQuantity = 3;
 
-        public DataChunkIndexer(IIndexDocuments documentsIndexer)
+        public DataChunkIndexer(IIndexDocuments documentsIndexer, IStoreDocuments documentsStorage)
         {
             _documentsIndexer = documentsIndexer;
+            _documentsStorage = documentsStorage;
         }
 
         public IndexResult IndexDataChunk<T>(DataChunk<T> dataChunk) 
@@ -32,7 +35,7 @@ namespace Bulkzor.Indexers
                 }
                 else 
                 {
-                    // TODO : Store documents not indexed
+                    _documentsStorage.StoreDocuments(dataChunk.Data, dataChunk.IndexName, dataChunk.TypeName);
                 }    
             }
 
@@ -54,6 +57,7 @@ namespace Bulkzor.Indexers
 
                 if (indexDocumentsResult.HaveError)
                 {
+                    _documentsStorage.StoreDocuments(dataChunk.Data, dataChunk.IndexName, dataChunk.TypeName);
                     documentsNotIndexed += indexDocumentsResult.DocumentsNotIndexed;
                 }
                 else
