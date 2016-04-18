@@ -36,7 +36,7 @@ namespace Bulkzor.Configuration
         internal IHandle<BulkDocuments<TDocument>, IndexResult> GetBulkDocumentsHandler =>
             new BulkDocumentsHandler<TDocument>
                 (new IndexChunkHandler<TDocument>
-                    (GetDocumentIndexer, new IndexChunkInPartsHandler<TDocument>(GetDocumentIndexer)));
+                    (GetDocumentIndexer, new IndexChunkInPartsHandler<TDocument>(GetDocumentIndexer), new StoreDocumentsNotIndexedHandler<TDocument>()));
 
         public BulkTaskConfiguration<TDocument> Nodes(params Uri[] nodes)
         {
