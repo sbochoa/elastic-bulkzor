@@ -58,6 +58,7 @@
     <Compile Include="Commands\BulkDocuments.cs" />
     <Compile Include="Commands\IndexChunkInParts.cs" />
     <Compile Include="Commands\IndexChunk.cs" />
+    <Compile Include="Commands\StoreDocumentsNotIndexed.cs" />
     <Compile Include="Configuration\BulkTaskConfiguration.cs" />
     <Compile Include="Bulkzor.cs" />
     <Compile Include="Configuration\ChunkConfiguration.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Handlers\BulkDocumentsHandler.cs" />
     <Compile Include="Handlers\IndexChunkHandler.cs" />
     <Compile Include="Handlers\IndexChunkInPartsHandler.cs" />
+    <Compile Include="Handlers\StoreDocumentsNotIndexedHandler.cs" />
     <Compile Include="IProcessBulk.cs" />
     <Compile Include="Results\IndexResult.cs" />
     <Compile Include="IBulkTask.cs" />
