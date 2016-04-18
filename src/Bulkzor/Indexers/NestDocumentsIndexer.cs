@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Bulkzor.Results;
 using Bulkzor.Types;
@@ -8,7 +7,7 @@ using Nest;
 namespace Bulkzor.Indexers
 {
     public class NestDocumentsIndexer
-        : IDocumentsIndexer
+        : IIndexDocuments
     {
         private readonly ElasticClient _client;
         public ElasticClient Client => _client;
@@ -18,8 +17,8 @@ namespace Bulkzor.Indexers
             _client = client;
         }
 
-        public IndexResult Index<T>(IEnumerable<T> documents, string indexName, string typeName)
-            where T : class 
+        public IndexDocumentsResult IndexDocuments<T>(IEnumerable<T> documents, string indexName, string typeName)
+            where T : class  
         {
             IBulkResponse response = _client.IndexMany(documents, indexName, typeName);
 
@@ -31,7 +30,7 @@ namespace Bulkzor.Indexers
             {
                 indexingError = IndexingError.LengthExceeded;
             }
-            else if(response.ItemsWithErrors.Any())
+            else if (response.ItemsWithErrors.Any())
             {
                 indexingError = IndexingError.OnlyPartOfDocumentsIndexed;
             }
@@ -44,7 +43,7 @@ namespace Bulkzor.Indexers
                 indexingError = IndexingError.None;
             }
 
-            return new IndexResult(response.Items.Count(), response.ItemsWithErrors.Count(), TimeSpan.Zero, indexingError);
+            return new IndexDocumentsResult(response.Items.Count(), response.ItemsWithErrors.Count(), indexingError);
         }
     }
 }

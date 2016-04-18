@@ -1,31 +1,26 @@
 ﻿using System;
 using Bulkzor.Callbacks;
-using Bulkzor.Commands;
 using Bulkzor.Configuration;
-using Bulkzor.Handlers;
 using Bulkzor.Indexers;
-using Bulkzor.Results;
 
 namespace Bulkzor
 {
-    public class BulkTask<T> : IBulkTask
-        where T:class
+    public class BulkTask<TDocument> : IBulkTask
+        where TDocument:class
     {
-        private readonly ISource<T> _source;
+        private readonly ISource<TDocument> _source;
         private readonly string _indexName;
         private readonly string _typeName;
         private readonly BeforeBulkTaskRun _beforeBulkTaskRun;
         private readonly AfterBulkTaskRun _afterBulkTaskRun;
         private readonly OnBulkTaskError _onBulkTaskError;
         private readonly ChunkConfiguration _chunkConfiguration;
-        private readonly IHandle<BulkDocuments<T>, IndexResult> _bulkDocumentsHandler;
-        private readonly IDocumentsIndexer _documentIndexer;
+        private readonly IIndexDocuments _documentIndexer;
+        private readonly IIndexData _dataIndexor;
 
-        private BulkTask(ISource<T> source, string indexName, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
+        private BulkTask(ISource<TDocument> source, string indexName, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
             , AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError
-            , ChunkConfiguration chunkConfiguration
-            , IHandle<BulkDocuments<T>, IndexResult> bulkDocumentsHandler
-            , IDocumentsIndexer documentIndexer)
+            , ChunkConfiguration chunkConfiguration, IIndexDocuments documentIndexer, IIndexData dataIndexor)
         {
             _source = source;
             _indexName = indexName;
@@ -34,24 +29,24 @@ namespace Bulkzor
             _afterBulkTaskRun = afterBulkTaskRun;
             _onBulkTaskError = onBulkTaskError;
             _chunkConfiguration = chunkConfiguration;
-            _bulkDocumentsHandler = bulkDocumentsHandler;
             _documentIndexer = documentIndexer;
+            _dataIndexor = dataIndexor;
         }
 
-        public static BulkTask<T> ConfigureWith(Action<BulkTaskConfiguration<T>> configuration)
+        public static BulkTask<TDocument> ConfigureWith(Action<BulkTaskConfiguration<TDocument>> configuration)
         {
-            var bulkConfiguration = new BulkTaskConfiguration<T>();
+            var bulkConfiguration = new BulkTaskConfiguration<TDocument>();
             configuration(bulkConfiguration);
 
-            return new BulkTask<T>((ISource<T>)bulkConfiguration.GetSource
+            return new BulkTask<TDocument>((ISource<TDocument>)bulkConfiguration.GetSource
                 , bulkConfiguration.GetIndexName 
                 , bulkConfiguration.GetTypeName
                 , bulkConfiguration.GetBeforeBulkTaskRun
                 , bulkConfiguration.GetAfterBulkTaskRun
                 , bulkConfiguration.GetOnBulkTaskError
                 , bulkConfiguration.ChunkConfiguration
-                , bulkConfiguration.GetBulkDocumentsHandler
-                , bulkConfiguration.GetDocumentIndexer);
+                , bulkConfiguration.GetDocumentIndexer
+                , bulkConfiguration.GetDataIndexer);
         }  
 
         public void Run()
@@ -60,13 +55,11 @@ namespace Bulkzor
             {
                 _beforeBulkTaskRun?.Invoke(_documentIndexer, _indexName, _typeName);
 
-                var source = _source as IManagedSource<T>;
+                var source = _source as IManagedSource<TDocument>;
 
                 source?.OpenConnection();
 
-                var result = 
-                    _bulkDocumentsHandler
-                        .Handle(new BulkDocuments<T>(_source.GetData(), _indexName, _typeName, _chunkConfiguration));
+                var result = _dataIndexor.IndexData(_source.GetData(), _indexName, _typeName, _chunkConfiguration);
 
                 source?.CloseConnection();
 

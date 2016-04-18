@@ -1,9 +1,6 @@
 ﻿using System;
 using Bulkzor.Callbacks;
-using Bulkzor.Commands;
-using Bulkzor.Handlers;
 using Bulkzor.Indexers;
-using Bulkzor.Results;
 using Elasticsearch.Net;
 using Nest;
 
@@ -20,7 +17,7 @@ namespace Bulkzor.Configuration
         private AfterBulkTaskRun _afterBulkTaskRun;
         private OnBulkTaskError _onBulkTaskError;
         private ChunkConfiguration _chunkConfiguration;
-        private IDocumentsIndexer _documentIndexer;
+        private IIndexDocuments _documentIndexer;
 
         internal object GetSource => _source;
         internal string GetTypeName => _typeName ?? nameof(TDocument);
@@ -30,13 +27,10 @@ namespace Bulkzor.Configuration
         internal BeforeBulkTaskRun GetBeforeBulkTaskRun => _beforeBulkTaskRun;
         internal OnBulkTaskError GetOnBulkTaskError => _onBulkTaskError;
         public ChunkConfiguration ChunkConfiguration => _chunkConfiguration ?? (_chunkConfiguration = new ChunkConfiguration());
+        public IIndexDocuments GetDocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
 
-        internal IDocumentsIndexer GetDocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
 
-        internal IHandle<BulkDocuments<TDocument>, IndexResult> GetBulkDocumentsHandler =>
-            new BulkDocumentsHandler<TDocument>
-                (new IndexChunkHandler<TDocument>
-                    (GetDocumentIndexer, new IndexChunkInPartsHandler<TDocument>(GetDocumentIndexer), new StoreDocumentsNotIndexedHandler<TDocument>()));
+        internal IIndexData GetDataIndexer => new DataIndexer(new DataChunkIndexer(GetDocumentIndexer));
 
         public BulkTaskConfiguration<TDocument> Nodes(params Uri[] nodes)
         {
@@ -79,7 +73,7 @@ namespace Bulkzor.Configuration
             return this;
         }
 
-        public BulkTaskConfiguration<TDocument> UsingCustomDocumentIndexer(IDocumentsIndexer documentsIndexer)
+        public BulkTaskConfiguration<TDocument> UsingCustomDocumentIndexer(IIndexDocuments documentsIndexer)
         {
             _documentIndexer = documentsIndexer;
             return this;

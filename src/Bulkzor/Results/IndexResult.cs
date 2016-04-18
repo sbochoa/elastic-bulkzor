@@ -5,27 +5,19 @@ namespace Bulkzor.Results
 {
     public class IndexResult
     {
-        public IndexResult(int documentsIndexed, int documentsNotIndexed, TimeSpan timeElapsed, IndexingError error)
-            : this(documentsIndexed, documentsNotIndexed, timeElapsed)
+        public IndexResult(int objectsIndexed, int objectsNotIndexed, TimeSpan timeElapsed)
         {
-            Error = error;
-        }
-
-        public IndexResult(int documentsIndexed, int documentsNotIndexed, TimeSpan timeElapsed)
-        {
-            DocumentsIndexed = documentsIndexed;
-            DocumentsNotIndexed = documentsNotIndexed;
+            ObjectsIndexed = objectsIndexed;
+            ObjectsNotIndexed = objectsNotIndexed;
             TimeElapsed = timeElapsed;
-            Error = documentsNotIndexed > 0 ? IndexingError.OnlyPartOfDocumentsIndexed : IndexingError.None;
 
             Message =
-                $"{DocumentsIndexed} documents indexed - {DocumentsNotIndexed} documents not indexed - Ended in {TimeElapsed.ToString("g")}";
+                $"{ObjectsIndexed} documents indexed - {ObjectsNotIndexed} documents not indexed - Ended in {TimeElapsed.ToString("g")}";
         }
 
-        public int DocumentsIndexed { get; }
-        public int DocumentsNotIndexed { get; }
+        public int ObjectsIndexed { get; }
+        public int ObjectsNotIndexed { get; }
         public TimeSpan TimeElapsed { get; }
-        public IndexingError Error { get; }
         public string Message { get; }
     }
 }
