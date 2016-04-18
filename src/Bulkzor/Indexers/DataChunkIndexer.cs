@@ -15,13 +15,9 @@ namespace Bulkzor.Indexers
             _documentsIndexer = documentsIndexer;
         }
 
-        public IndexResult IndexDataChunk<T>(DataChunk<T> dataChunk) 
+        public IndexDataChunkResult IndexDataChunk<T>(DataChunk<T> dataChunk) 
             where T : class
         {
-            var watch = new Stopwatch();
-
-            watch.Start();
-
             var indexDocumentsResult = _documentsIndexer.IndexDocuments(dataChunk.Data, dataChunk.IndexName, dataChunk.TypeName);
 
             if (indexDocumentsResult.HaveError)
@@ -35,10 +31,7 @@ namespace Bulkzor.Indexers
                     // TODO : Store documents not indexed
                 }    
             }
-
-            watch.Stop();
-
-            return new IndexResult(indexDocumentsResult.DocumentsIndexed, indexDocumentsResult.DocumentsNotIndexed, watch.Elapsed);
+            return new IndexDataChunkResult(indexDocumentsResult.DocumentsIndexed, indexDocumentsResult.DocumentsNotIndexed);
         }
 
         private IndexDocumentsResult IndexDataChunkInParts<T>(DataChunk<T> dataChunk, int partsQuantity) where T : class

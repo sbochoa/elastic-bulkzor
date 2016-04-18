@@ -6,12 +6,12 @@ namespace Bulkzor.Configuration
     {
         private int? _chunkSize;
         private int? _chunkRetries;
-        private OnChunkIndexed _onChunkIndexed;
+        private OnDataChunkIndexed _onDataChunkIndexed;
         private bool? _partChunkWhenFail;
 
         internal int GetChunkSize => _chunkSize ?? 1000;
         internal int GetChunkRetries => _chunkRetries ?? 5;
-        internal OnChunkIndexed GetOnChunkIndexed => _onChunkIndexed;
+        internal OnDataChunkIndexed GetOnDataChunkIndexed => _onDataChunkIndexed;
         internal bool GetPartChunkWhenFail => _partChunkWhenFail ?? true;
 
         public ChunkConfiguration ChunkSize(int chunkSize)
@@ -26,9 +26,9 @@ namespace Bulkzor.Configuration
             return this;
         }
 
-        public ChunkConfiguration OnBulkIndexed(OnChunkIndexed onChunkIndexed)
+        public ChunkConfiguration OnDataChunkIndexed(OnDataChunkIndexed onDataChunkIndexed)
         {
-            _onChunkIndexed = onChunkIndexed;
+            _onDataChunkIndexed = onDataChunkIndexed;
             return this;
         }
 

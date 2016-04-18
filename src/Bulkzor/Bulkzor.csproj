@@ -66,11 +66,12 @@
     <Compile Include="Indexers\IIndexDocuments.cs" />
     <Compile Include="Indexers\DataIndexer.cs" />
     <Compile Include="Indexers\NestDocumentsIndexer.cs" />
+    <Compile Include="Results\IndexDataChunkResult.cs" />
     <Compile Include="Results\IndexDocumentsResult.cs" />
     <Compile Include="Results\IndexResult.cs" />
     <Compile Include="IBulkTask.cs" />
     <Compile Include="ISource.cs" />
-    <Compile Include="Callbacks\OnChunkIndexed.cs" />
+    <Compile Include="Callbacks\OnDataChunkIndexed.cs" />
     <Compile Include="Callbacks\OnBulkTaskError.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\IndexingError.cs" />
