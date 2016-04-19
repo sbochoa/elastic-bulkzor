@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor", "Bulkzor\Bulkzor.csproj", "{2CE375BC-1E1B-4511-A8FC-BC8A3641D62D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.SqlServer", "Bulkzor.SqlServer\Bulkzor.SqlServer.csproj", "{D10608AF-91A4-4203-90B4-B29F54DF4B98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.Tests", "Bulkzor.Tests\Bulkzor.Tests.csproj", "{7CD90B2E-E7F1-4210-8CE8-1C1178B66FF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.File", "Bulkzor.File\Bulkzor.File.csproj", "{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{D10608AF-91A4-4203-90B4-B29F54DF4B98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D10608AF-91A4-4203-90B4-B29F54DF4B98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D10608AF-91A4-4203-90B4-B29F54DF4B98}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7CD90B2E-E7F1-4210-8CE8-1C1178B66FF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7CD90B2E-E7F1-4210-8CE8-1C1178B66FF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7CD90B2E-E7F1-4210-8CE8-1C1178B66FF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7CD90B2E-E7F1-4210-8CE8-1C1178B66FF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
