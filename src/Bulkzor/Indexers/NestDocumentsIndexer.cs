@@ -43,7 +43,28 @@ namespace Bulkzor.Indexers
                 indexingError = IndexingError.None;
             }
 
-            return new IndexDocumentsResult(response.Items.Count(), response.ItemsWithErrors.Count(), indexingError);
+            var documentsIndexed = 0;
+            var documentsNotIndexed = 0;
+
+            if (response.Items != null)
+            {
+                documentsIndexed = response.Items.Count();
+            }
+            else
+            {
+                documentsIndexed = 0;
+            }
+
+            if (response.ItemsWithErrors != null)
+            {
+                documentsNotIndexed = response.ItemsWithErrors.Count();
+            }
+            else
+            {
+                documentsNotIndexed = 0;
+            }
+
+            return new IndexDocumentsResult(documentsIndexed, documentsNotIndexed, indexingError);
         }
     }
 }

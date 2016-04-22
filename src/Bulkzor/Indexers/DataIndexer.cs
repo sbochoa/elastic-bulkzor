@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Bulkzor.Configuration;
 using Bulkzor.Results;
 
@@ -21,6 +22,7 @@ namespace Bulkzor.Indexers
         {
             var dataChunk = new DataChunk<T>(indexName, typeName, chunkConfiguration.GetChunkSize);
             var watch = new Stopwatch();
+            var dataChunkWatch = new Stopwatch();
 
             var objectsIndexed = 0;
             var objectsNotIndexed = 0;
@@ -30,10 +32,12 @@ namespace Bulkzor.Indexers
                 var result = _dataChunkIndexer.IndexDataChunk(dataChunk);
                 objectsIndexed += result.ObjectsIndexed;
                 objectsNotIndexed += result.ObjectsNotIndexed;
-                chunkConfiguration.GetOnChunkIndexed?.Invoke(result, indexName, typeName);
+                dataChunkWatch.Stop();
+                chunkConfiguration.GetOnDataChunkIndexed?.Invoke(result, indexName, typeName);
             };
 
             watch.Start();
+            dataChunkWatch.Start();
 
             foreach (var @object in data)
             {
@@ -41,12 +45,17 @@ namespace Bulkzor.Indexers
                 {
                     indexDataChunk();
                     dataChunk.ClearData();
+
+                    dataChunkWatch.Restart();
                 }
 
                 dataChunk.Add(@object);
             }
 
-            indexDataChunk();
+            if (dataChunk.HasData)
+            {
+                indexDataChunk();
+            }
 
             watch.Stop();
             

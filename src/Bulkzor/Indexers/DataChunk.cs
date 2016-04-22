@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Bulkzor.Utils;
 
 namespace Bulkzor.Indexers
@@ -10,6 +11,7 @@ namespace Bulkzor.Indexers
         public string TypeName { get; }
 
         public bool IsFull => _maximumSize <= Data.Count;
+        public bool HasData => Data.Any();
 
         public DataChunk(string indexName, string typeName, int maximumSize)
         {
