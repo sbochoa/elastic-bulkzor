@@ -1,3 +1,3 @@
 #Elastic-Bulkzor
 
-Library to index a source into Elastic search
+Library to index a datastore into Elastic search
