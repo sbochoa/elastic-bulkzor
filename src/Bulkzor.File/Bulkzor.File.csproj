@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormatType.cs" />
     <Compile Include="TextFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

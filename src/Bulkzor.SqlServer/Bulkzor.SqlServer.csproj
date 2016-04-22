@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="SqlServerQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlServerServiceBrokerQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bulkzor\Bulkzor.csproj">

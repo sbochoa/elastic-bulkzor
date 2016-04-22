@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using Bulkzor.Callbacks;
 using Bulkzor.Indexers;
 using Elasticsearch.Net;
@@ -6,22 +8,23 @@ using Nest;
 
 namespace Bulkzor.Configuration
 {
-    public class BulkTaskConfiguration<TDocument>
-        where TDocument : class
+    public class BulkTaskConfiguration<T>
+        where T : class
     {
-        private object _source;
+        private ISource _source;
         private string _typeName;
-        private string _indexName;
+        private Func<T, string> _indexNameFunc;
         private Uri[] _nodes;
         private BeforeBulkTaskRun _beforeBulkTaskRun;
         private AfterBulkTaskRun _afterBulkTaskRun;
         private OnBulkTaskError _onBulkTaskError;
         private ChunkConfiguration _chunkConfiguration;
         private IIndexDocuments _documentIndexer;
+        private IEnumerable<T> _data;
 
-        internal object GetSource => _source;
-        internal string GetTypeName => _typeName ?? nameof(TDocument);
-        internal string GetIndexName => _indexName ?? $"{nameof(TDocument)}s";
+        internal ISource GetSource => _source;
+        internal string GetTypeName => _typeName ?? nameof(T);
+        internal Func<T, string> GetIndexNameFunc => _indexNameFunc ?? (@object => $"{nameof(T)}s"); 
         internal Uri[] GetNodes => _nodes;
         internal AfterBulkTaskRun GetAfterBulkTaskRun => _afterBulkTaskRun;
         internal BeforeBulkTaskRun GetBeforeBulkTaskRun => _beforeBulkTaskRun;
@@ -30,50 +33,65 @@ namespace Bulkzor.Configuration
         public IIndexDocuments GetDocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
 
 
-        internal IIndexData GetDataIndexer => new DataIndexer(new DataChunkIndexer(GetDocumentIndexer));
+        internal IIndexData GetDataIndexer => 
+            new DataIndexer
+                (new DataChunkIndexer(GetDocumentIndexer, ChunkConfiguration.GetBeforeIndexDataChunk, ChunkConfiguration.GetAfterIndexDataChunk));
+        public IEnumerable<T> GetData => _data;
 
-        public BulkTaskConfiguration<TDocument> Nodes(params Uri[] nodes)
+        public BulkTaskConfiguration<T> Nodes(params Uri[] nodes)
         {
             _nodes = nodes;
             return this;
         }
-        public BulkTaskConfiguration<TDocument> Source(ISource<TDocument> source)
+        public BulkTaskConfiguration<T> Source(ISource source)
         {
             _source = source;
             return this;
         }
 
-        public BulkTaskConfiguration<TDocument> TypeName(string typeName)
+        public BulkTaskConfiguration<T> Source(IEnumerable<T> data)
+        {
+            _data = data;
+            return this;
+        }
+
+        public BulkTaskConfiguration<T> IndexName(Func<T, string> indexNameFunc)
+        {
+            _indexNameFunc = indexNameFunc;
+            return this;
+        }
+
+        public BulkTaskConfiguration<T> TypeName(string typeName)
         {
             _typeName = typeName;
             return this;
         }
 
-        public BulkTaskConfiguration<TDocument> IndexName(string indexName)
+        public BulkTaskConfiguration<T> IndexName(string indexName)
         {
-            _indexName = indexName;
+            _indexNameFunc = @object => indexName;
             return this;
         }
 
-        public BulkTaskConfiguration<TDocument> BeforeBulkTaskRun(BeforeBulkTaskRun beforeBulkTaskRun)
+        public BulkTaskConfiguration<T> BeforeBulkTaskRun(BeforeBulkTaskRun beforeBulkTaskRun)
         {
             _beforeBulkTaskRun = beforeBulkTaskRun;
             return this;
         }
 
-        public BulkTaskConfiguration<TDocument> AfterBulkTaskRun(AfterBulkTaskRun afterBulkTaskRun)
+        public BulkTaskConfiguration<T> AfterBulkTaskRun(AfterBulkTaskRun afterBulkTaskRun)
         {
             _afterBulkTaskRun = afterBulkTaskRun;
             return this;
         }
 
-        public BulkTaskConfiguration<TDocument> OnBulkTaskError(OnBulkTaskError onBulkTaskError)
+        public BulkTaskConfiguration<T> OnBulkTaskError(OnBulkTaskError onBulkTaskError)
         {
             _onBulkTaskError = onBulkTaskError;
             return this;
         }
 
-        public BulkTaskConfiguration<TDocument> UsingCustomDocumentIndexer(IIndexDocuments documentsIndexer)
+        public BulkTaskConfiguration<T> UsingCustomDocumentIndexer(IIndexDocuments documentsIndexer)
         {
             _documentIndexer = documentsIndexer;
             return this;

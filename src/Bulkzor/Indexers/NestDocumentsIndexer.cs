@@ -50,18 +50,10 @@ namespace Bulkzor.Indexers
             {
                 documentsIndexed = response.Items.Count();
             }
-            else
-            {
-                documentsIndexed = 0;
-            }
 
             if (response.ItemsWithErrors != null)
             {
                 documentsNotIndexed = response.ItemsWithErrors.Count();
-            }
-            else
-            {
-                documentsNotIndexed = 0;
             }
 
             return new IndexDocumentsResult(documentsIndexed, documentsNotIndexed, indexingError);

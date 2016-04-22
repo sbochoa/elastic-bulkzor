@@ -53,11 +53,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Callbacks\AfterBulkTaskRun.cs" />
+    <Compile Include="Callbacks\AfterIndexDataChunk.cs" />
     <Compile Include="Callbacks\BeforeBulkTaskRun.cs" />
     <Compile Include="BulkTask.cs" />
     <Compile Include="Configuration\BulkTaskConfiguration.cs" />
     <Compile Include="Bulkzor.cs" />
     <Compile Include="Configuration\ChunkConfiguration.cs" />
+    <Compile Include="Indexers\DataIndexChunk.cs" />
     <Compile Include="IProcessBulk.cs" />
     <Compile Include="Indexers\DataChunk.cs" />
     <Compile Include="Indexers\DataChunkIndexer.cs" />
@@ -71,11 +73,12 @@
     <Compile Include="Results\IndexResult.cs" />
     <Compile Include="IBulkTask.cs" />
     <Compile Include="ISource.cs" />
-    <Compile Include="Callbacks\OnDataChunkIndexed.cs" />
+    <Compile Include="Callbacks\BeforeIndexDataChunk.cs" />
     <Compile Include="Callbacks\OnBulkTaskError.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\IndexingError.cs" />
     <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\IndexNameResolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -4,9 +4,8 @@ using Dapper;
 
 namespace Bulkzor.SqlServer
 {
-    public class SqlServerQuery<T>
-        : IManagedSource<T>
-        where T:class 
+    public class SqlServerQuery
+        : IManagedSource
     {
         private readonly string _connectionString;
         private readonly string _sql;
@@ -26,7 +25,8 @@ namespace Bulkzor.SqlServer
             _connection.Open();
         }
 
-        public IEnumerable<T> GetData()
+        public IEnumerable<T> GetData<T>()
+            where T : class
         {
             return _connection.Query<T>(_sql, buffered: _buffered);
         }

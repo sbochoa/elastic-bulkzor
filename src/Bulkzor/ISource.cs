@@ -2,14 +2,12 @@
 
 namespace Bulkzor
 {
-    public interface ISource<out T>
-        where T:class
+    public interface ISource
     {
-        IEnumerable<T> GetData();
+        IEnumerable<T> GetData<T>() where T : class;
     }
 
-    public interface IManagedSource<out T> : ISource<T>
-        where T:class
+    public interface IManagedSource : ISource
     {
         void OpenConnection();
         void CloseConnection();

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.SqlServer", "Bulkzo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.File", "Bulkzor.File\Bulkzor.File.csproj", "{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlDumpElasticBulk", "..\..\..\..\Documents\Visual Studio 2015\Projects\XmlDumpIndexer\XmlDumpElasticBulk\XmlDumpElasticBulk.csproj", "{1BED62F2-D21E-4407-9B4A-3892E6F3C146}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BED62F2-D21E-4407-9B4A-3892E6F3C146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BED62F2-D21E-4407-9B4A-3892E6F3C146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BED62F2-D21E-4407-9B4A-3892E6F3C146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BED62F2-D21E-4407-9B4A-3892E6F3C146}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

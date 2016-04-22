@@ -1,50 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 using Newtonsoft.Json;
 
 namespace Bulkzor.File
 {
-    public class TextFile<T>
-        : ISource<T>
-        where T : class
+    public class TextFile
+        : ISource
+        
     {
         private readonly string _path;
+        private readonly FormatType _formatType;
         private readonly string _extension;
+        private static readonly string DefaultExtension = "*.txt";
 
-        public TextFile(string path)
+        public TextFile(string path, FormatType formatType)
         {
             _path = path;
-            _extension = "*.txt";
+            _formatType = formatType;
         }
 
-        public TextFile(string path, string extension)
+        public TextFile(string path, FormatType formatType, string extension)
+            : this(path, formatType)
         {
-            _path = path;
-            _extension = $"*.{extension}";
+            _extension = $"*.{extension.TrimStart('*', '.')}";
         }
 
-        public IEnumerable<T> GetData()
+        public IEnumerable<T> GetData<T>()
+            where T : class
         {
             var attributes = System.IO.File.GetAttributes(_path);
             var isDirectory = attributes.HasFlag(FileAttributes.Directory);
 
             if (isDirectory)
             {
-                return GetObjectsFromDirectory(_path);
+                return GetObjectsFromDirectory<T>(_path);
             }
 
-            return GetObjectsFromFile(_path);
+            return GetObjectsFromFile<T>(_path);
         }
 
-        private IEnumerable<T> GetObjectsFromDirectory(string directoryPath)
+        private IEnumerable<T> GetObjectsFromDirectory<T>(string directoryPath)
+            where T : class
         {
-            var fileInfos = new DirectoryInfo(directoryPath).GetFiles(_extension);
+            var fileInfos = new DirectoryInfo(directoryPath).GetFiles(_extension ?? DefaultExtension);
 
-            return fileInfos.SelectMany(fileInfo => GetObjectsFromFile(fileInfo.FullName));
+            return fileInfos.SelectMany(fileInfo => GetObjectsFromFile<T>(fileInfo.FullName));
         }
 
-        private IEnumerable<T> GetObjectsFromFile(string filePath)
+        private IEnumerable<T> GetObjectsFromFile<T>(string filePath)
+            where T : class
         {
             using (var fileStream = System.IO.File.OpenRead(filePath))
             {
@@ -53,10 +60,32 @@ namespace Bulkzor.File
                     string line;
                     while ((line = streamReader.ReadLine()) != null)
                     {
-                        yield return JsonConvert.DeserializeObject<T>(line);
+                        switch (_formatType)
+                        {
+                            case FormatType.Json:
+                                yield return DeserializeFromJson<T>(line);
+                                break;
+                            case FormatType.Xml:
+                                yield return DeserializeFromXml<T>(line);
+                                break;
+                            default:
+                                throw new InvalidOperationException(nameof(_formatType));
+                        }
                     }
                 }
             }
+        }
+
+        private static T DeserializeFromJson<T>(string line)
+            where T : class
+        {
+            return JsonConvert.DeserializeObject<T>(line);
+        }
+
+        private static T DeserializeFromXml<T>(string line)
+            where T : class
+        {
+            return (T) new XmlSerializer(typeof (T)).Deserialize(new StringReader(line));
         }
     }
 }

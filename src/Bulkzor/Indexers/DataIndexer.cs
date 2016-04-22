@@ -17,10 +17,10 @@ namespace Bulkzor.Indexers
             _dataChunkIndexer = dataChunkIndexer;
         }
 
-        public IndexResult IndexData<T>(IEnumerable<T> data, string indexName, string typeName, ChunkConfiguration chunkConfiguration)
+        public IndexResult IndexData<T>(IEnumerable<T> data, Func<T, string> indexNameFunc, string typeName, ChunkConfiguration chunkConfiguration)
             where T : class
         {
-            var dataChunk = new DataChunk<T>(indexName, typeName, chunkConfiguration.GetChunkSize);
+            var dataChunk = new DataChunk<T>(indexNameFunc, typeName, chunkConfiguration.GetChunkSize);
             var watch = new Stopwatch();
             var dataChunkWatch = new Stopwatch();
 
@@ -33,7 +33,7 @@ namespace Bulkzor.Indexers
                 objectsIndexed += result.ObjectsIndexed;
                 objectsNotIndexed += result.ObjectsNotIndexed;
                 dataChunkWatch.Stop();
-                chunkConfiguration.GetOnDataChunkIndexed?.Invoke(result, indexName, typeName);
+                
             };
 
             watch.Start();
