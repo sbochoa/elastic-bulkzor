@@ -26,7 +26,7 @@ namespace Bulkzor.SqlServer
         }
 
         public IEnumerable<T> GetData<T>()
-            where T : class
+            where T : class, IIndexableObject
         {
             return _connection.Query<T>(_sql, buffered: _buffered);
         }

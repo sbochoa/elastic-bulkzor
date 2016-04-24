@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using Bulkzor.Callbacks;
 using Bulkzor.Configuration;
-using Bulkzor.Indexers;
+using Bulkzor.Processors;
 
 namespace Bulkzor
 {
     public class BulkTask<T> : IBulkTask
-        where T:class
+        where T: class, IIndexableObject
     {
         private readonly ISource _source;
         private readonly IEnumerable<T> _data;
@@ -17,11 +17,11 @@ namespace Bulkzor
         private readonly AfterBulkTaskRun _afterBulkTaskRun;
         private readonly OnBulkTaskError _onBulkTaskError;
         private readonly ChunkConfiguration _chunkConfiguration;
-        private readonly IIndexData _dataIndexor;
+        private readonly IProcessData _dataProcessor;
 
         private BulkTask(ISource source, IEnumerable<T> data, Func<T, string> indexNameFunc, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
             , AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError
-            , ChunkConfiguration chunkConfiguration, IIndexData dataIndexor)
+            , ChunkConfiguration chunkConfiguration, IProcessData dataProcessor)
         {
             _source = source;
             _data = data;
@@ -31,7 +31,7 @@ namespace Bulkzor
             _afterBulkTaskRun = afterBulkTaskRun;
             _onBulkTaskError = onBulkTaskError;
             _chunkConfiguration = chunkConfiguration;
-            _dataIndexor = dataIndexor;
+            _dataProcessor = dataProcessor;
         }
 
         public static BulkTask<T> ConfigureWith(Action<BulkTaskConfiguration<T>> configuration)
@@ -60,7 +60,7 @@ namespace Bulkzor
 
                 source?.OpenConnection();
 
-                var result = _dataIndexor.IndexData(_data ?? _source.GetData<T>(), _indexNameFunc, _typeName, _chunkConfiguration);
+                var result = _dataProcessor.IndexData(_data ?? _source.GetData<T>(), _indexNameFunc, _typeName, _chunkConfiguration.GetChunkSize);
 
                 source?.CloseConnection();
 

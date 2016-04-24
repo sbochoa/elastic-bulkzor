@@ -30,7 +30,8 @@ namespace Bulkzor.SqlServer
             _resultsQuantity = resultsQuantity;
         }
 
-        public IEnumerable<T> GetData<T>() where T : class
+        public IEnumerable<T> GetData<T>() 
+            where T : class, IIndexableObject
         {
             var connection = new SqlConnection(_connectionString);
 

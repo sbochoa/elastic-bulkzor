@@ -29,17 +29,12 @@ namespace Bulkzor.File
         }
 
         public IEnumerable<T> GetData<T>()
-            where T : class
+            where T : class, IIndexableObject
         {
             var attributes = System.IO.File.GetAttributes(_path);
             var isDirectory = attributes.HasFlag(FileAttributes.Directory);
 
-            if (isDirectory)
-            {
-                return GetObjectsFromDirectory<T>(_path);
-            }
-
-            return GetObjectsFromFile<T>(_path);
+            return isDirectory ? GetObjectsFromDirectory<T>(_path) : GetObjectsFromFile<T>(_path);
         }
 
         private IEnumerable<T> GetObjectsFromDirectory<T>(string directoryPath)
