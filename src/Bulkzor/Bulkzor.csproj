@@ -84,7 +84,7 @@
     <Compile Include="Indexers\IIndexObjects.cs" />
     <Compile Include="Processors\DataProcessor.cs" />
     <Compile Include="Indexers\NestObjectsIndexer.cs" />
-    <Compile Include="Results\IndexDocumentsResult.cs" />
+    <Compile Include="Results\IndexObjectsResult.cs" />
     <Compile Include="Results\ObjectsProcessedResult.cs" />
     <Compile Include="IBulkTask.cs" />
     <Compile Include="ISource.cs" />
