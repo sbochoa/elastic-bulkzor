@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using Bulkzor.Callbacks;
+using Bulkzor.Errors;
 using Bulkzor.Indexers;
 using Bulkzor.Processors;
 using Bulkzor.Storage;
@@ -47,7 +48,7 @@ namespace Bulkzor.Configuration
         internal IProcessData<T> GetDataIndexer => 
             new DataProcessor<T>
                 (new ChunkProcessor<T>
-                    (GetDocumentIndexer, null,  GetLogger)
+                    (GetDocumentIndexer, new IndexErrorsHandler<T>(GetDocumentIndexer, null, GetLogger),  GetLogger)
                 , GetLogger);
         public IEnumerable<T> GetData => _data;
         public ILog GetLogger => _logger ?? (_logger = LogManager.GetLogger(_name ?? $"Task-Thread:{Thread.CurrentThread.ManagedThreadId}"));
