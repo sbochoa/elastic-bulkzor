@@ -60,7 +60,6 @@ namespace Bulkzor.Indexers
             else
             {
                 indexingError = IndexingError.None;
-                _logger.Error(logWithIndexDescription(response.ServerError.Error.Reason));
             }
 
             var documentsIndexed = objects.Where(d => response.Items?.Any(i => i.Id == d.Id) ?? false).ToList();
