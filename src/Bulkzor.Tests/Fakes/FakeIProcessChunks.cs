@@ -7,8 +7,8 @@ using Bulkzor.Results;
 
 namespace Bulkzor.Tests.Fakes
 {
-    public class FakeIProcessChunks
-        : IProcessChunks
+    public class FakeIProcessChunks<T> : IProcessChunks<T>
+        where T : class, IIndexableObject
     {
         private readonly Func<ObjectsProcessedResult, ObjectsProcessedResult> _resultOverride;
 
@@ -17,8 +17,7 @@ namespace Bulkzor.Tests.Fakes
             _resultOverride = resultOverride;
         }
 
-        public ObjectsProcessedResult ProcessChunks<T>(IReadOnlyList<Chunk<T>> chunks) 
-            where T : class, IIndexableObject
+        public ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk<T>> chunks) 
         {
              return _resultOverride(new ObjectsProcessedResult(chunks.Sum(c => c.Data.Count), 0));
         }

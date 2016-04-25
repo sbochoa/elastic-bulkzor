@@ -17,11 +17,11 @@ namespace Bulkzor
         private readonly AfterBulkTaskRun _afterBulkTaskRun;
         private readonly OnBulkTaskError _onBulkTaskError;
         private readonly ChunkConfiguration _chunkConfiguration;
-        private readonly IProcessData _dataProcessor;
+        private readonly IProcessData<T> _dataProcessor;
 
         private BulkTask(ISource source, IEnumerable<T> data, Func<T, string> indexNameFunc, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
             , AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError
-            , ChunkConfiguration chunkConfiguration, IProcessData dataProcessor)
+            , ChunkConfiguration chunkConfiguration, IProcessData<T> dataProcessor)
         {
             _source = source;
             _data = data;

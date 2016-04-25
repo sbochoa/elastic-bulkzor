@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Fakes\FakeIIndexObjects.cs" />
     <Compile Include="Fakes\FakeIProcessChunks.cs" />
     <Compile Include="Fakes\FakeSource.cs" />
     <Compile Include="Fakes\Person.cs" />

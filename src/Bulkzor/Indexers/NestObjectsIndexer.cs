@@ -9,8 +9,8 @@ using Nest;
 
 namespace Bulkzor.Indexers
 {
-    public class NestObjectsIndexer
-        : IIndexObjects
+    public class NestObjectsIndexer<T> : IIndexObjects<T>
+        where T : class, IIndexableObject
     {
         private readonly ElasticClient _client;
         private readonly ILog _logger;
@@ -22,8 +22,7 @@ namespace Bulkzor.Indexers
             _logger = logger;
         }
 
-        public IndexObjectsResult<T> Index<T>(IReadOnlyList<T> objects, string indexName, string typeName)
-            where T : class, IIndexableObject
+        public IndexObjectsResult<T> Index(IReadOnlyList<T> objects, string indexName, string typeName)
         {
             IBulkResponse response = _client.IndexMany(objects, indexName, typeName);
 

@@ -18,7 +18,7 @@ using LogLevel = NLog.LogLevel;
 namespace Bulkzor.Configuration
 {
     public class BulkTaskConfiguration<T>
-        where T : IIndexableObject
+        where T : class, IIndexableObject
     {
         private ISource _source;
         private string _typeName;
@@ -28,7 +28,7 @@ namespace Bulkzor.Configuration
         private AfterBulkTaskRun _afterBulkTaskRun;
         private OnBulkTaskError _onBulkTaskError;
         private ChunkConfiguration _chunkConfiguration;
-        private IIndexObjects _documentIndexer;
+        private IIndexObjects<T> _documentIndexer;
         private IEnumerable<T> _data;
         private ILog _logger;
         private string _name;
@@ -41,13 +41,13 @@ namespace Bulkzor.Configuration
         internal BeforeBulkTaskRun GetBeforeBulkTaskRun => _beforeBulkTaskRun;
         internal OnBulkTaskError GetOnBulkTaskError => _onBulkTaskError;
         public ChunkConfiguration ChunkConfiguration => _chunkConfiguration ?? (_chunkConfiguration = new ChunkConfiguration());
-        public IIndexObjects GetDocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
+        public IIndexObjects<T> GetDocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
 
 
-        internal IProcessData GetDataIndexer => 
-            new DataProcessor
-                (new ChunkProcessor
-                    (GetDocumentIndexer, new InFileObjectsStorage(),  GetLogger)
+        internal IProcessData<T> GetDataIndexer => 
+            new DataProcessor<T>
+                (new ChunkProcessor<T>
+                    (GetDocumentIndexer, null,  GetLogger)
                 , GetLogger);
         public IEnumerable<T> GetData => _data;
         public ILog GetLogger => _logger ?? (_logger = LogManager.GetLogger(_name ?? $"Task-Thread:{Thread.CurrentThread.ManagedThreadId}"));
@@ -111,7 +111,7 @@ namespace Bulkzor.Configuration
             return this;
         }
 
-        public BulkTaskConfiguration<T> UsingCustomDocumentIndexer(IIndexObjects documentsIndexer)
+        public BulkTaskConfiguration<T> UsingCustomDocumentIndexer(IIndexObjects<T> documentsIndexer)
         {
             _documentIndexer = documentsIndexer;
             return this;
@@ -123,14 +123,14 @@ namespace Bulkzor.Configuration
             return this;
         }
 
-        private NestObjectsIndexer CreateNestDocumentIndexer()
+        private NestObjectsIndexer<T> CreateNestDocumentIndexer()
         {
             var pool = new StaticConnectionPool(_nodes);
             var settings = new ConnectionSettings(pool);
 
             var client = new ElasticClient(settings);
 
-            return new NestObjectsIndexer(client, GetLogger);
+            return new NestObjectsIndexer<T>(client, GetLogger);
         }
 
         private BulkTaskConfiguration<T> NLogLogger()

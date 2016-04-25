@@ -7,20 +7,19 @@ using Common.Logging;
 
 namespace Bulkzor.Processors
 {
-    public class DataProcessor
-        : IProcessData
+    public class DataProcessor<T> : IProcessData<T>
+        where T : class, IIndexableObject
     {
-        private readonly IProcessChunks _chunksIndexer;
+        private readonly IProcessChunks<T> _chunksIndexer;
         private readonly ILog _logger;
 
-        public DataProcessor(IProcessChunks chunksIndexer, ILog logger)
+        public DataProcessor(IProcessChunks<T> chunksIndexer, ILog logger)
         {
             _chunksIndexer = chunksIndexer;
             _logger = logger;
         }
 
-        public ObjectsProcessedResult IndexData<T>(IEnumerable<T> data, Func<T, string> indexNameFunc, string typeName, int chunkSize)
-            where T : class, IIndexableObject
+        public ObjectsProcessedResult IndexData(IEnumerable<T> data, Func<T, string> indexNameFunc, string typeName, int chunkSize)
         {
             var chunkStore = new ChunkStore<T>(indexNameFunc, typeName, chunkSize);
 

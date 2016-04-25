@@ -74,6 +74,8 @@
     <Compile Include="Configuration\BulkTaskConfiguration.cs" />
     <Compile Include="Bulkzor.cs" />
     <Compile Include="Configuration\ChunkConfiguration.cs" />
+    <Compile Include="Errors\IHandleIndexErrors.cs" />
+    <Compile Include="Errors\IndexErrorsHandler.cs" />
     <Compile Include="IIndexableObject.cs" />
     <Compile Include="Models\Chunk.cs" />
     <Compile Include="IProcessBulk.cs" />

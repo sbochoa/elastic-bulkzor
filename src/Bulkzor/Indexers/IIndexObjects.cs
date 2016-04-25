@@ -3,9 +3,9 @@ using Bulkzor.Results;
 
 namespace Bulkzor.Indexers
 {
-    public interface IIndexObjects
+    public interface IIndexObjects<T>
+        where T : class, IIndexableObject
     {
-        IndexObjectsResult<T> Index<T>(IReadOnlyList<T> objects, string indexName, string typeName)
-            where T : class, IIndexableObject;
+        IndexObjectsResult<T> Index(IReadOnlyList<T> objects, string indexName, string typeName);
     }
 }

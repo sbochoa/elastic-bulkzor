@@ -17,16 +17,10 @@ namespace Bulkzor.Tests.Processors
         private readonly Func<Person, string> _indexNameFunc = person => "IndexName";
         private readonly string _typeName = "TypeName";
 
-        private DataProcessor GetDataProcessor(Action<Mock<IProcessChunks>> mockConfiguration)
+        private DataProcessor<T> GetDataProcessor<T>(IProcessChunks<T> chunksProcessor)
+            where T : class, IIndexableObject
         {
-            var chunkProcessorMock = new Mock<IProcessChunks>();
-            mockConfiguration(chunkProcessorMock);
-            return new DataProcessor(chunkProcessorMock.Object, LogManager.GetLogger("MyLogger"));
-        }
-
-        private DataProcessor GetDataProcessor(IProcessChunks chunksProcessor)
-        {
-            return new DataProcessor(chunksProcessor, LogManager.GetLogger("MyLogger"));
+            return new DataProcessor<T>(chunksProcessor, LogManager.GetLogger("MyLogger"));
         }
 
         [Test]
@@ -37,7 +31,7 @@ namespace Bulkzor.Tests.Processors
         {
             var data = new FakeSource(objectsQuantity).GetData<Person>().ToList();
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks(realResult => realResult));
+            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(realResult => realResult));
 
             var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);
 
@@ -55,7 +49,7 @@ namespace Bulkzor.Tests.Processors
             var data = new FakeSource(objectsQuantity).GetData<Person>().ToList();
             var numberOfChunks = (int)Math.Ceiling((double)objectsQuantity/chunkSize);
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks(realResult => new ObjectsProcessedResult
+            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(realResult => new ObjectsProcessedResult
                                                             (realResult.ObjectsProcessed - numberOfObjectsNotProcessed, numberOfObjectsNotProcessed)));
 
             var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);
