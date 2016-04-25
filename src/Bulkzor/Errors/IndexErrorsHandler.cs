@@ -40,7 +40,7 @@ namespace Bulkzor.Errors
                 case IndexingError.Unknow:
                     _logger.Warn(logWithIndexDescription($"Storing data not indexed"));
                     _objectsStore.StoreObjects(objectsNotIndexed, indexName, typeName);
-                    return new IndexObjectsResult<T>(new List<T>(), objectsNotIndexed);
+                    return new IndexObjectsResult<T>(new List<T>(), objectsNotIndexed, IndexingError.OnlyPartOfDocumentsIndexed, objectsNotIndexed);
                 default:
                     throw new ArgumentException(nameof(error));
             }

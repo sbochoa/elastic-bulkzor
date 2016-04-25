@@ -31,7 +31,7 @@ namespace Bulkzor.Tests.Processors
         {
             var data = new FakeSource(objectsQuantity).GetData<Person>().ToList();
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(realResult => realResult));
+            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(chunks => new ObjectsProcessedResult(chunks.Sum(c => c.Data.Count), 0, 0)));
 
             var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);
 
@@ -49,8 +49,8 @@ namespace Bulkzor.Tests.Processors
             var data = new FakeSource(objectsQuantity).GetData<Person>().ToList();
             var numberOfChunks = (int)Math.Ceiling((double)objectsQuantity/chunkSize);
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(realResult => new ObjectsProcessedResult
-                                                            (realResult.ObjectsProcessed - numberOfObjectsNotProcessed, numberOfObjectsNotProcessed)));
+            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(chunks => new ObjectsProcessedResult
+                                                            (chunks.Sum(c => c.Data.Count) - numberOfObjectsNotProcessed, numberOfObjectsNotProcessed, 0)));
 
             var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);
 

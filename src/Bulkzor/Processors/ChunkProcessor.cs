@@ -27,6 +27,7 @@ namespace Bulkzor.Processors
         {
             var objectsIndexed = 0;
             var objectsNotIndexed = 0;
+            var objectsNotIndexedStored = 0;
 
             foreach (var chunk in chunks)
             {
@@ -49,9 +50,10 @@ namespace Bulkzor.Processors
 
                 objectsIndexed += indexDocumentsResult.ObjectsIndexed.Count;
                 objectsNotIndexed += indexDocumentsResult.ObjectsNotIndexed.Count;
+                objectsNotIndexedStored += indexDocumentsResult.ObjectsNotIndexedStored.Count;
             }
 
-            return new ObjectsProcessedResult(objectsIndexed, objectsNotIndexed);
+            return new ObjectsProcessedResult(objectsIndexed, objectsNotIndexed, objectsNotIndexedStored);
         }
     }
 }

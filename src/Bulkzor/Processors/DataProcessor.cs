@@ -25,6 +25,7 @@ namespace Bulkzor.Processors
 
             var objectsProcessed = 0;
             var objectsNotProcessed = 0;
+            var objectsNotProcessedStored = 0;
             var objectCount = 0;
 
             Action indexDataChunk = () =>
@@ -32,6 +33,7 @@ namespace Bulkzor.Processors
                 var result = _chunksIndexer.ProcessChunks(chunkStore.Chunks);
                 objectsProcessed += result.ObjectsProcessed;
                 objectsNotProcessed += result.ObjectsNotProcessed;
+                objectsNotProcessedStored += result.ObjectsNotProcessedStored;
             };
 
             var watch = new Stopwatch();
@@ -61,7 +63,7 @@ namespace Bulkzor.Processors
 
             _logger.Info($"Index data ended - Total:{objectCount} Indexed:{objectsProcessed} Not Indexed:{objectsNotProcessed} Took:{watch.Elapsed.ToString("g")}");
 
-            return new ObjectsProcessedResult(objectsProcessed, objectsNotProcessed);
+            return new ObjectsProcessedResult(objectsProcessed, objectsNotProcessed, objectsNotProcessedStored);
         }
     }
 }

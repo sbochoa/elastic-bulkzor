@@ -41,7 +41,8 @@ namespace Bulkzor.Indexers
 
                 return new IndexObjectsResult<T>(new List<T>(), objects, indexingError);
             }
-            else if (response.ItemsWithErrors?.Any() ?? false)
+
+            if (response.ItemsWithErrors?.Any() ?? false)
             {
                 indexingError = IndexingError.OnlyPartOfDocumentsIndexed;
 

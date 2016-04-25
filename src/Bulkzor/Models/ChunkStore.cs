@@ -40,6 +40,11 @@ namespace Bulkzor.Models
 
         public void AddObjectToChunk(T @object)
         {
+            if (IsFull)
+            {
+                throw new ApplicationException("Cant add more objects Chunk is full");
+            }
+
             var indexName = _indexName ?? _indexNameFunc(@object);
             var typeName = _typeName;
 

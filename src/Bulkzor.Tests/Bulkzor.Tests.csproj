@@ -78,9 +78,11 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="Fakes\FakeIIndexObjects.cs" />
+    <Compile Include="Fakes\FakeIndexErrorsHandler.cs" />
     <Compile Include="Fakes\FakeIProcessChunks.cs" />
     <Compile Include="Fakes\FakeSource.cs" />
     <Compile Include="Fakes\Person.cs" />
+    <Compile Include="Processors\ChunkProcessorTests.cs" />
     <Compile Include="Processors\DataProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

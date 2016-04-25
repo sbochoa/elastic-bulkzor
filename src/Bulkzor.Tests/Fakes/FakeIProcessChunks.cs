@@ -10,16 +10,16 @@ namespace Bulkzor.Tests.Fakes
     public class FakeIProcessChunks<T> : IProcessChunks<T>
         where T : class, IIndexableObject
     {
-        private readonly Func<ObjectsProcessedResult, ObjectsProcessedResult> _resultOverride;
+        private readonly Func<IReadOnlyList<Chunk<T>>, ObjectsProcessedResult> _resultOverride;
 
-        public FakeIProcessChunks(Func<ObjectsProcessedResult, ObjectsProcessedResult> resultOverride)
+        public FakeIProcessChunks(Func<IReadOnlyList<Chunk<T>>, ObjectsProcessedResult> resultOverride)
         {
             _resultOverride = resultOverride;
         }
 
         public ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk<T>> chunks) 
         {
-             return _resultOverride(new ObjectsProcessedResult(chunks.Sum(c => c.Data.Count), 0));
+             return _resultOverride(chunks);
         }
     }
 }
