@@ -6,17 +6,16 @@ using Bulkzor.Types;
 
 namespace Bulkzor.Tests.Fakes
 {
-    public class FakeIIndexObjects<T> : IIndexObjects<T>
-        where T : class, IIndexableObject
+    public class FakeIIndexObjects : IIndexObjects
     {
-        private readonly Func<IReadOnlyList<T>, IndexObjectsResult<T>> _resultOverride;
+        private readonly Func<IReadOnlyList<object>, IndexObjectsResult> _resultOverride;
 
-        public FakeIIndexObjects(Func<IReadOnlyList<T>, IndexObjectsResult<T>> resultOverride)
+        public FakeIIndexObjects(Func<IReadOnlyList<object>, IndexObjectsResult> resultOverride)
         {
             _resultOverride = resultOverride;
         }
 
-        public IndexObjectsResult<T> Index(IReadOnlyList<T> objects, string indexName, string typeName)
+        public IndexObjectsResult Index(IReadOnlyList<object> objects, string indexName, string typeName)
         {
             return _resultOverride(objects);
         }

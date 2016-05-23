@@ -14,13 +14,12 @@ namespace Bulkzor.Tests.Processors
     [TestFixture]
     public class DataProcessorTests
     {
-        private readonly Func<Person, string> _indexNameFunc = person => "IndexName";
+        private readonly Func<object, string> _indexNameFunc = person => "IndexName";
         private readonly string _typeName = "TypeName";
 
-        private DataProcessor<T> GetDataProcessor<T>(IProcessChunks<T> chunksProcessor)
-            where T : class, IIndexableObject
+        private DataProcessor GetDataProcessor(IProcessChunks chunksProcessor)
         {
-            return new DataProcessor<T>(chunksProcessor, LogManager.GetLogger("MyLogger"));
+            return new DataProcessor(chunksProcessor, LogManager.GetLogger("MyLogger"));
         }
 
         [Test]
@@ -29,9 +28,9 @@ namespace Bulkzor.Tests.Processors
         [TestCase(10, 10)]
         public void IndexData_WhenChunkProcessorWorksCorrectly_ShouldReturnZeroObjectsNotProcessed(int objectsQuantity, int chunkSize)
         {
-            var data = new FakeSource(objectsQuantity).GetData<Person>().ToList();
+            var data = new FakeSource(objectsQuantity).GetData().ToList();
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(chunks => new ObjectsProcessedResult(chunks.Sum(c => c.Data.Count), 0, 0)));
+            var dataProcessor = GetDataProcessor(new FakeIProcessChunks(chunks => new ObjectsProcessedResult(chunks.Sum(c => c.Data.Count), 0, 0)));
 
             var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);
 
@@ -46,10 +45,10 @@ namespace Bulkzor.Tests.Processors
         public void IndexData_WhenChunkProcessorDoesNotWorksCorrectly_ShouldReturnCorrectNumberOfObjectsProcessedAndNotProcessed
             (int objectsQuantity, int chunkSize, int numberOfObjectsNotProcessed)
         {
-            var data = new FakeSource(objectsQuantity).GetData<Person>().ToList();
+            var data = new FakeSource(objectsQuantity).GetData().ToList();
             var numberOfChunks = (int)Math.Ceiling((double)objectsQuantity/chunkSize);
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks<Person>(chunks => new ObjectsProcessedResult
+            var dataProcessor = GetDataProcessor(new FakeIProcessChunks(chunks => new ObjectsProcessedResult
                                                             (chunks.Sum(c => c.Data.Count) - numberOfObjectsNotProcessed, numberOfObjectsNotProcessed, 0)));
 
             var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);

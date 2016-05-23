@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using Bulkzor.Callbacks;
 using Bulkzor.Errors;
 using Bulkzor.Indexers;
 using Bulkzor.Processors;
-using Bulkzor.Storage;
 using Common.Logging;
 using Common.Logging.Configuration;
 using Common.Logging.NLog;
@@ -18,123 +16,127 @@ using LogLevel = NLog.LogLevel;
 
 namespace Bulkzor.Configuration
 {
-    public class BulkTaskConfiguration<T>
-        where T : class, IIndexableObject
+    public class BulkTaskConfiguration
     {
         private ISource _source;
         private string _typeName;
-        private Func<T, string> _indexNameFunc;
+        private Func<object, string> _indexNameFunc;
         private Uri[] _nodes;
         private BeforeBulkTaskRun _beforeBulkTaskRun;
         private AfterBulkTaskRun _afterBulkTaskRun;
         private OnBulkTaskError _onBulkTaskError;
         private ChunkConfiguration _chunkConfiguration;
-        private IIndexObjects<T> _documentIndexer;
-        private IEnumerable<T> _data;
+        private IIndexObjects _documentIndexer;
+        private IEnumerable<object> _data;
         private ILog _logger;
         private string _name;
 
         internal ISource GetSource => _source;
-        internal string GetTypeName => _typeName ?? nameof(T);
-        internal Func<T, string> GetIndexNameFunc => _indexNameFunc ?? (@object => $"{nameof(T)}s"); 
-        internal Uri[] GetNodes => _nodes;
+        internal string GetTypeName => _typeName;
+        internal Func<object, string> GetIndexNameFunc => _indexNameFunc; 
         internal AfterBulkTaskRun GetAfterBulkTaskRun => _afterBulkTaskRun;
         internal BeforeBulkTaskRun GetBeforeBulkTaskRun => _beforeBulkTaskRun;
         internal OnBulkTaskError GetOnBulkTaskError => _onBulkTaskError;
-        public ChunkConfiguration ChunkConfiguration => _chunkConfiguration ?? (_chunkConfiguration = new ChunkConfiguration());
-        public IIndexObjects<T> GetDocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
+        internal ChunkConfiguration GetChunkConfiguration => _chunkConfiguration ?? (_chunkConfiguration = new ChunkConfiguration());
+        public IIndexObjects GetDocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
 
 
-        internal IProcessData<T> GetDataIndexer => 
-            new DataProcessor<T>
-                (new ChunkProcessor<T>
-                    (GetDocumentIndexer, new IndexErrorsHandler<T>(GetDocumentIndexer, null, GetLogger),  GetLogger)
+        internal IProcessData GetDataIndexer => 
+            new DataProcessor
+                (new ChunkProcessor
+                    (GetDocumentIndexer, new IndexErrorsHandler(GetDocumentIndexer, null, GetLogger),  GetLogger)
                 , GetLogger);
-        public IEnumerable<T> GetData => _data;
+        public IEnumerable<object> GetData => _data;
         public ILog GetLogger => _logger ?? (_logger = LogManager.GetLogger(_name ?? $"Task-Thread:{Thread.CurrentThread.ManagedThreadId}"));
 
-        public BulkTaskConfiguration<T> TaskName(string name)
+        public BulkTaskConfiguration TaskName(string name)
         {
             _name = name;
             return this;
         }
 
-        public BulkTaskConfiguration<T> Nodes(params Uri[] nodes)
+        public BulkTaskConfiguration Nodes(params Uri[] nodes)
         {
             _nodes = nodes;
             return this;
         }
-        public BulkTaskConfiguration<T> Source(ISource source)
+        public BulkTaskConfiguration Source(ISource source)
         {
             _source = source;
             return this;
         }
 
-        public BulkTaskConfiguration<T> Source(IEnumerable<T> data)
+        public BulkTaskConfiguration Source(IEnumerable<object> data)
         {
             _data = data;
             return this;
         }
 
-        public BulkTaskConfiguration<T> IndexName(Func<T, string> indexNameFunc)
+        public BulkTaskConfiguration IndexName(Func<object, string> indexNameFunc)
         {
             _indexNameFunc = indexNameFunc;
             return this;
         }
 
-        public BulkTaskConfiguration<T> TypeName(string typeName)
+        public BulkTaskConfiguration TypeName(string typeName)
         {
             _typeName = typeName;
             return this;
         }
 
-        public BulkTaskConfiguration<T> IndexName(string indexName)
+        public BulkTaskConfiguration IndexName(string indexName)
         {
             _indexNameFunc = @object => indexName;
             return this;
         }
 
-        public BulkTaskConfiguration<T> BeforeBulkTaskRun(BeforeBulkTaskRun beforeBulkTaskRun)
+        public BulkTaskConfiguration BeforeBulkTaskRun(BeforeBulkTaskRun beforeBulkTaskRun)
         {
             _beforeBulkTaskRun = beforeBulkTaskRun;
             return this;
         }
 
-        public BulkTaskConfiguration<T> AfterBulkTaskRun(AfterBulkTaskRun afterBulkTaskRun)
+        public BulkTaskConfiguration AfterBulkTaskRun(AfterBulkTaskRun afterBulkTaskRun)
         {
             _afterBulkTaskRun = afterBulkTaskRun;
             return this;
         }
 
-        public BulkTaskConfiguration<T> OnBulkTaskError(OnBulkTaskError onBulkTaskError)
+        public BulkTaskConfiguration OnBulkTaskError(OnBulkTaskError onBulkTaskError)
         {
             _onBulkTaskError = onBulkTaskError;
             return this;
         }
 
-        public BulkTaskConfiguration<T> UsingCustomDocumentIndexer(IIndexObjects<T> documentsIndexer)
+        public BulkTaskConfiguration UsingCustomDocumentIndexer(IIndexObjects documentsIndexer)
         {
             _documentIndexer = documentsIndexer;
             return this;
         }
 
-        public BulkTaskConfiguration<T> CustomLogger(ILog logger)
+        public BulkTaskConfiguration CustomLogger(ILog logger)
         {
             _logger = logger;
             return this;
         }
 
-        private NestObjectsIndexer<T> CreateNestDocumentIndexer()
+        public BulkTaskConfiguration ChunkConfiguration(ChunkConfiguration chunkConfiguration)
+        {
+            _chunkConfiguration = chunkConfiguration;
+            return this;
+        }
+
+        private NestObjectsIndexer CreateNestDocumentIndexer()
         {
             var pool = new StaticConnectionPool(_nodes);
             var settings = new ConnectionSettings(pool);
 
             var client = new ElasticClient(settings);
 
-            return new NestObjectsIndexer<T>(client, GetLogger);
+            return new NestObjectsIndexer(client, GetLogger);
         }
 
-        private BulkTaskConfiguration<T> NLogLogger()
+        private BulkTaskConfiguration NLogLogger()
         {
             var config = new LoggingConfiguration();
 

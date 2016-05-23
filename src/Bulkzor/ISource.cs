@@ -4,7 +4,7 @@ namespace Bulkzor
 {
     public interface ISource
     {
-        IEnumerable<T> GetData<T>() where T : class, IIndexableObject;
+        IEnumerable<object> GetData();
     }
 
     public interface IManagedSource : ISource

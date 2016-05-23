@@ -13,12 +13,11 @@ namespace Bulkzor.Tests.Fakes
             _quantity = quantity;
         }
 
-        public IEnumerable<T> GetData<T>() 
-            where T : class, IIndexableObject
+        public IEnumerable<object> GetData()
         {
-            for (int i = 0; i < _quantity; i++)
+            for (var i = 0; i < _quantity; i++)
             {
-                yield return Activator.CreateInstance<T>();
+                yield return Activator.CreateInstance<Person>();
             }
         }
     }

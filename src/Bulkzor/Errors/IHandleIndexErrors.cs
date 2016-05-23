@@ -4,9 +4,8 @@ using Bulkzor.Types;
 
 namespace Bulkzor.Errors
 {
-    public interface IHandleIndexErrors<T>
-        where T : class, IIndexableObject
+    public interface IHandleIndexErrors
     {
-        IndexObjectsResult<T> HandleError(IndexingError error, IReadOnlyList<T> objectsNotIndexed, string indexName, string typeName);
+        IndexObjectsResult HandleError(IndexingError error, IReadOnlyList<object> objectsNotIndexed, string indexName, string typeName);
     }
 }

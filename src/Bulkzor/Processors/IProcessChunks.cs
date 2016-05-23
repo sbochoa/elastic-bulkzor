@@ -4,9 +4,8 @@ using Bulkzor.Results;
 
 namespace Bulkzor.Processors
 {
-    public interface IProcessChunks<T>
-        where T : class, IIndexableObject
+    public interface IProcessChunks
     {
-        ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk<T>> chunks);
+        ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk> chunks);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -30,8 +31,7 @@ namespace Bulkzor.SqlServer
             _resultsQuantity = resultsQuantity;
         }
 
-        public IEnumerable<T> GetData<T>() 
-            where T : class, IIndexableObject
+        public IEnumerable<object> GetData()
         {
             var connection = new SqlConnection(_connectionString);
 
@@ -42,13 +42,15 @@ namespace Bulkzor.SqlServer
                                                 AS Message
                                                 FROM { _queueName})").ToList();
 
-            var serializer = new XmlSerializer(typeof(T), new XmlRootAttribute(_rootElement));
+            //var serializer = new XmlSerializer(typeof(T), new XmlRootAttribute(_rootElement));
 
-            var messageList = data.Select(xml => (T)serializer.Deserialize(new StringReader(xml))).ToList();
+            //var messageList = data.Select(xml => (T)serializer.Deserialize(new StringReader(xml))).ToList();
 
-            connection.Close();
+            //connection.Close();
 
-            return messageList;
+            //return messageList;
+            //TODO deserialize object from XML
+            throw new NotImplementedException();
         }
     }
 }

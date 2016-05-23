@@ -7,17 +7,16 @@ using Bulkzor.Results;
 
 namespace Bulkzor.Tests.Fakes
 {
-    public class FakeIProcessChunks<T> : IProcessChunks<T>
-        where T : class, IIndexableObject
+    public class FakeIProcessChunks : IProcessChunks
     {
-        private readonly Func<IReadOnlyList<Chunk<T>>, ObjectsProcessedResult> _resultOverride;
+        private readonly Func<IReadOnlyList<Chunk>, ObjectsProcessedResult> _resultOverride;
 
-        public FakeIProcessChunks(Func<IReadOnlyList<Chunk<T>>, ObjectsProcessedResult> resultOverride)
+        public FakeIProcessChunks(Func<IReadOnlyList<Chunk>, ObjectsProcessedResult> resultOverride)
         {
             _resultOverride = resultOverride;
         }
 
-        public ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk<T>> chunks) 
+        public ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk> chunks) 
         {
              return _resultOverride(chunks);
         }

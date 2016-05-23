@@ -4,16 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{222A2B51-FB91-4EC0-8D1B-6548DB350ED1}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{BFBE1A80-1F16-4C65-BEB2-9039B7C8EF0E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bulkzor.File</RootNamespace>
-    <AssemblyName>Bulkzor.File</AssemblyName>
+    <RootNamespace>Bulkzor.Executor</RootNamespace>
+    <AssemblyName>Bulkzor.Executor</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -35,6 +36,10 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SmartFormat, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SmartFormat.NET.1.6.1.0\lib\net40\SmartFormat.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,18 +50,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormatType.cs" />
-    <Compile Include="TextFile.cs" />
+    <Compile Include="Configurations\BaseTaskConfiguration.cs" />
+    <Compile Include="ConfigurationFileReader.cs" />
+    <Compile Include="Configurations\ITaskConfiguration.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Configurations\SqlServerTaskConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bulkzor.File\Bulkzor.File.csproj">
+      <Project>{222a2b51-fb91-4ec0-8d1b-6548db350ed1}</Project>
+      <Name>Bulkzor.File</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bulkzor.SqlServer\Bulkzor.SqlServer.csproj">
+      <Project>{d10608af-91a4-4203-90b4-b29f54df4b98}</Project>
+      <Name>Bulkzor.SqlServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bulkzor\Bulkzor.csproj">
       <Project>{2ce375bc-1e1b-4511-a8fc-bc8a3641d62d}</Project>
       <Name>Bulkzor</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

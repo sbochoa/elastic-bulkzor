@@ -6,17 +6,16 @@ using Bulkzor.Types;
 
 namespace Bulkzor.Tests.Fakes
 {
-    public class FakeIndexErrorsHandler<T> : IHandleIndexErrors<T>
-        where T : class, IIndexableObject
+    public class FakeIndexErrorsHandler : IHandleIndexErrors
     {
-        private readonly Func<IndexingError, IReadOnlyList<T>, IndexObjectsResult<T>> _resultOverride;
+        private readonly Func<IndexingError, IReadOnlyList<object>, IndexObjectsResult> _resultOverride;
 
-        public FakeIndexErrorsHandler(Func<IndexingError, IReadOnlyList<T>, IndexObjectsResult<T>> resultOverride)
+        public FakeIndexErrorsHandler(Func<IndexingError, IReadOnlyList<object>, IndexObjectsResult> resultOverride)
         {
             _resultOverride = resultOverride;
         }
 
-        public IndexObjectsResult<T> HandleError(IndexingError error, IReadOnlyList<T> objectsNotIndexed, string indexName, string typeName)
+        public IndexObjectsResult HandleError(IndexingError error, IReadOnlyList<object> objectsNotIndexed, string indexName, string typeName)
         {
             return _resultOverride(error, objectsNotIndexed);
         }

@@ -28,25 +28,22 @@ namespace Bulkzor.File
             _extension = $"*.{extension.TrimStart('*', '.')}";
         }
 
-        public IEnumerable<T> GetData<T>()
-            where T : class, IIndexableObject
+        public IEnumerable<object> GetData()
         {
             var attributes = System.IO.File.GetAttributes(_path);
             var isDirectory = attributes.HasFlag(FileAttributes.Directory);
 
-            return isDirectory ? GetObjectsFromDirectory<T>(_path) : GetObjectsFromFile<T>(_path);
+            return isDirectory ? GetObjectsFromDirectory(_path) : GetObjectsFromFile(_path);
         }
 
-        private IEnumerable<T> GetObjectsFromDirectory<T>(string directoryPath)
-            where T : class
+        private IEnumerable<object> GetObjectsFromDirectory(string directoryPath)
         {
             var fileInfos = new DirectoryInfo(directoryPath).GetFiles(_extension ?? DefaultExtension);
 
-            return fileInfos.SelectMany(fileInfo => GetObjectsFromFile<T>(fileInfo.FullName));
+            return fileInfos.SelectMany(fileInfo => GetObjectsFromFile(fileInfo.FullName));
         }
 
-        private IEnumerable<T> GetObjectsFromFile<T>(string filePath)
-            where T : class
+        private IEnumerable<object> GetObjectsFromFile(string filePath)
         {
             using (var fileStream = System.IO.File.OpenRead(filePath))
             {
@@ -58,10 +55,10 @@ namespace Bulkzor.File
                         switch (_formatType)
                         {
                             case FormatType.Json:
-                                yield return DeserializeFromJson<T>(line);
+                                yield return DeserializeFromJson(line);
                                 break;
                             case FormatType.Xml:
-                                yield return DeserializeFromXml<T>(line);
+                                yield return DeserializeFromXml(line);
                                 break;
                             default:
                                 throw new InvalidOperationException(nameof(_formatType));
@@ -71,16 +68,16 @@ namespace Bulkzor.File
             }
         }
 
-        private static T DeserializeFromJson<T>(string line)
-            where T : class
+        private static object DeserializeFromJson(string line)
         {
-            return JsonConvert.DeserializeObject<T>(line);
+            return JsonConvert.DeserializeObject<object>(line);
         }
 
-        private static T DeserializeFromXml<T>(string line)
-            where T : class
+        private static object DeserializeFromXml(string line)
         {
-            return (T) new XmlSerializer(typeof (T)).Deserialize(new StringReader(line));
+            //TODO deserialize object from XML
+            throw new NotImplementedException();
+            //return new XmlSerializer().Deserialize(new StringReader(line));
         }
     }
 }

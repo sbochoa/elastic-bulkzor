@@ -5,9 +5,8 @@ using Bulkzor.Results;
 
 namespace Bulkzor.Processors
 {
-    public interface IProcessData<T>
-        where T : class, IIndexableObject
+    public interface IProcessData
     {
-        ObjectsProcessedResult IndexData(IEnumerable<T> data, Func<T, string> indexNameFunc, string typeName, int chunkSize);
+        ObjectsProcessedResult IndexData(IEnumerable<object> data, Func<object, string> indexNameFunc, string typeName, int chunkSize);
     }
 }

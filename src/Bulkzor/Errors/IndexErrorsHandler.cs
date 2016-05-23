@@ -11,22 +11,21 @@ using static System.String;
 
 namespace Bulkzor.Errors
 {
-    public class IndexErrorsHandler<T> : IHandleIndexErrors<T>
-        where T : class, IIndexableObject
+    public class IndexErrorsHandler : IHandleIndexErrors
     {
-        private readonly IIndexObjects<T> _objectsIndexer;
+        private readonly IIndexObjects _objectsIndexer;
         private readonly IStoreObjects _objectsStore;
         private readonly ILog _logger;
         private const int PartsQuantity = 3;
 
-        public IndexErrorsHandler(IIndexObjects<T> objectsIndexer, IStoreObjects objectsStore, ILog logger)
+        public IndexErrorsHandler(IIndexObjects objectsIndexer, IStoreObjects objectsStore, ILog logger)
         {
             _objectsIndexer = objectsIndexer;
             _objectsStore = objectsStore;
             _logger = logger;
         }
 
-        public IndexObjectsResult<T> HandleError(IndexingError error, IReadOnlyList<T> objectsNotIndexed, string indexName, string typeName) 
+        public IndexObjectsResult HandleError(IndexingError error, IReadOnlyList<object> objectsNotIndexed, string indexName, string typeName) 
         {
             Func<string, string> logWithIndexDescription =
                     description => _logger.LogWithIndexDescription(indexName, typeName, description);
@@ -40,13 +39,13 @@ namespace Bulkzor.Errors
                 case IndexingError.Unknow:
                     _logger.Warn(logWithIndexDescription($"Storing data not indexed"));
                     _objectsStore.StoreObjects(objectsNotIndexed, indexName, typeName);
-                    return new IndexObjectsResult<T>(new List<T>(), objectsNotIndexed, IndexingError.OnlyPartOfDocumentsIndexed, objectsNotIndexed);
+                    return new IndexObjectsResult(new List<object>(), objectsNotIndexed, IndexingError.OnlyPartOfDocumentsIndexed, objectsNotIndexed);
                 default:
                     throw new ArgumentException(nameof(error));
             }
         }
 
-        private IndexObjectsResult<T> IndexDataChunkInParts(IReadOnlyList<T> objectsWithErrors, string indexName, string typeName, int partsQuantity)
+        private IndexObjectsResult IndexDataChunkInParts(IReadOnlyList<object> objectsWithErrors, string indexName, string typeName, int partsQuantity)
         {
             var chunkDataParts = objectsWithErrors.Split(partsQuantity).ToList();
             var i = 0;
@@ -56,8 +55,8 @@ namespace Bulkzor.Errors
 
             _logger.Warn(logWithIndexDescription($"Parted chunk in {partsQuantity} parts: { Join("-", chunkDataParts.Select(cp => $"Part {++i}:{cp.Count()}"))}".TrimEnd('-')));
 
-            var documentsIndexed = new List<T>();
-            var documentsNotIndexed = new List<T>();
+            var documentsIndexed = new List<object>();
+            var documentsNotIndexed = new List<object>();
 
             i = 0;
 
@@ -76,7 +75,7 @@ namespace Bulkzor.Errors
                 _logger.Warn(logWithIndexDescription($"Part {++i}: Indexed:{indexDocumentsResult.ObjectsIndexed} - Not Indexed:{indexDocumentsResult.ObjectsNotIndexed}"));
             }
 
-            return new IndexObjectsResult<T>(documentsIndexed, documentsNotIndexed);
+            return new IndexObjectsResult(documentsIndexed, documentsNotIndexed);
         }
     }
 }

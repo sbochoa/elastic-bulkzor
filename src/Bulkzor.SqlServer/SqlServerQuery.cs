@@ -25,10 +25,9 @@ namespace Bulkzor.SqlServer
             _connection.Open();
         }
 
-        public IEnumerable<T> GetData<T>()
-            where T : class, IIndexableObject
+        public IEnumerable<object> GetData()
         {
-            return _connection.Query<T>(_sql, buffered: _buffered);
+            return _connection.Query(_sql, buffered: _buffered);
         }
 
         public void CloseConnection()

@@ -6,7 +6,7 @@ namespace Bulkzor
     public class Bulkzor
     {
         public static int NumberOfWorkers { get; set; } = Environment.ProcessorCount;
-        public static void RunBulks(params IBulkTask[] bulks)
+        public static void RunBulks(params BulkTask[] bulks)
         {
             Parallel.ForEach(bulks, new ParallelOptions() { MaxDegreeOfParallelism = NumberOfWorkers }, bulk =>
             {

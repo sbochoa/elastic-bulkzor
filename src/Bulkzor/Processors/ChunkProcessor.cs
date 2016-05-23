@@ -9,21 +9,20 @@ using Common.Logging;
 
 namespace Bulkzor.Processors
 {
-    public class ChunkProcessor<T> : IProcessChunks<T>
-        where T : class, IIndexableObject
+    public class ChunkProcessor : IProcessChunks
     {
-        private readonly IIndexObjects<T> _indexObjects;
-        private readonly IHandleIndexErrors<T> _indexErrorsHandler;
+        private readonly IIndexObjects _indexObjects;
+        private readonly IHandleIndexErrors _indexErrorsHandler;
         private readonly ILog _logger;
 
-        public ChunkProcessor(IIndexObjects<T> indexObjects, IHandleIndexErrors<T> indexErrorsHandler, ILog logger)
+        public ChunkProcessor(IIndexObjects indexObjects, IHandleIndexErrors indexErrorsHandler, ILog logger)
         {
             _indexObjects = indexObjects;
             _indexErrorsHandler = indexErrorsHandler;
             _logger = logger;
         }
 
-        public ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk<T>> chunks)
+        public ObjectsProcessedResult ProcessChunks(IReadOnlyList<Chunk> chunks)
         {
             var objectsIndexed = 0;
             var objectsNotIndexed = 0;

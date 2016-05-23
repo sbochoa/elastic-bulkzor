@@ -6,22 +6,21 @@ using Bulkzor.Processors;
 
 namespace Bulkzor
 {
-    public class BulkTask<T> : IBulkTask
-        where T: class, IIndexableObject
+    public class BulkTask : IBulkTask
     {
         private readonly ISource _source;
-        private readonly IEnumerable<T> _data;
-        private readonly Func<T, string> _indexNameFunc;
+        private readonly IEnumerable<dynamic> _data;
+        private readonly Func<dynamic, string> _indexNameFunc;
         private readonly string _typeName;
         private readonly BeforeBulkTaskRun _beforeBulkTaskRun;
         private readonly AfterBulkTaskRun _afterBulkTaskRun;
         private readonly OnBulkTaskError _onBulkTaskError;
         private readonly ChunkConfiguration _chunkConfiguration;
-        private readonly IProcessData<T> _dataProcessor;
+        private readonly IProcessData _dataProcessor;
 
-        private BulkTask(ISource source, IEnumerable<T> data, Func<T, string> indexNameFunc, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
+        private BulkTask(ISource source, IEnumerable<dynamic> data, Func<dynamic, string> indexNameFunc, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
             , AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError
-            , ChunkConfiguration chunkConfiguration, IProcessData<T> dataProcessor)
+            , ChunkConfiguration chunkConfiguration, IProcessData dataProcessor)
         {
             _source = source;
             _data = data;
@@ -34,19 +33,19 @@ namespace Bulkzor
             _dataProcessor = dataProcessor;
         }
 
-        public static BulkTask<T> ConfigureWith(Action<BulkTaskConfiguration<T>> configuration)
+        public static BulkTask ConfigureWith(Action<BulkTaskConfiguration> configuration)
         {
-            var bulkConfiguration = new BulkTaskConfiguration<T>();
+            var bulkConfiguration = new BulkTaskConfiguration();
             configuration(bulkConfiguration);
 
-            return new BulkTask<T>(bulkConfiguration.GetSource
+            return new BulkTask(bulkConfiguration.GetSource
                 , bulkConfiguration.GetData
                 , bulkConfiguration.GetIndexNameFunc
                 , bulkConfiguration.GetTypeName
                 , bulkConfiguration.GetBeforeBulkTaskRun
                 , bulkConfiguration.GetAfterBulkTaskRun
                 , bulkConfiguration.GetOnBulkTaskError
-                , bulkConfiguration.ChunkConfiguration
+                , bulkConfiguration.GetChunkConfiguration
                 , bulkConfiguration.GetDataIndexer);
         }  
 
@@ -60,7 +59,7 @@ namespace Bulkzor
 
                 source?.OpenConnection();
 
-                var result = _dataProcessor.IndexData(_data ?? _source.GetData<T>(), _indexNameFunc, _typeName, _chunkConfiguration.GetChunkSize);
+                var result = _dataProcessor.IndexData(_data ?? _source.GetData(), _indexNameFunc, _typeName, _chunkConfiguration.GetChunkSize);
 
                 source?.CloseConnection();
 

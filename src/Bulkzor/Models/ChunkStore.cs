@@ -4,28 +4,28 @@ using System.Linq;
 
 namespace Bulkzor.Models
 {
-    public class ChunkStore<T>
+    public class ChunkStore
     {
-        private readonly Func<T, string> _indexNameFunc;
+        private readonly Func<object, string> _indexNameFunc;
 
         private readonly int _maximumSize;
         private readonly string _typeName;
         private readonly string _indexName;
-        private readonly List<Chunk<T>> _chunks;
+        private readonly List<Chunk> _chunks;
 
         public bool IsFull => _maximumSize <= _chunks.Sum(ic => ic.Data.Count);
         public bool HasData => _chunks.Any();
 
-        public IReadOnlyList<Chunk<T>> Chunks => _chunks;
+        public IReadOnlyList<Chunk> Chunks => _chunks;
 
         private ChunkStore(string typeName, int maximumSize)
         {
             _typeName = typeName;
             _maximumSize = maximumSize;
-            _chunks = new List<Chunk<T>>();
+            _chunks = new List<Chunk>();
         }
 
-        public ChunkStore(Func<T, string> indexNameFunc, string typeName,  int maximumSize)
+        public ChunkStore(Func<object, string> indexNameFunc, string typeName,  int maximumSize)
             : this(typeName, maximumSize)
         {
             _indexNameFunc = indexNameFunc;
@@ -38,7 +38,7 @@ namespace Bulkzor.Models
             _indexName = indexName;
         }
 
-        public void AddObjectToChunk(T @object)
+        public void AddObjectToChunk(object @object)
         {
             if (IsFull)
             {
@@ -52,7 +52,7 @@ namespace Bulkzor.Models
 
             if (chunk == null)
             {
-                chunk = new Chunk<T>(indexName, typeName);
+                chunk = new Chunk(indexName, typeName);
                 _chunks.Add(chunk);
             }
 
