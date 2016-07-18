@@ -4,29 +4,8 @@ namespace Bulkzor.Configuration
 {
     public class ChunkConfiguration
     {
-        private int? _chunkSize;
-        private int? _chunkRetries;
-        private bool? _partChunkWhenFail;
-
-        internal int GetChunkSize => _chunkSize ?? 1000;
-        internal int GetChunkRetries => _chunkRetries ?? 5;
-        internal bool GetPartChunkWhenFail => _partChunkWhenFail ?? true;
-
-        public ChunkConfiguration ChunkSize(int chunkSize)
-        {
-            _chunkSize = chunkSize;
-            return this;
-        }
-
-        public ChunkConfiguration ChunkRetries(int chunkRetries)
-        {
-            _chunkRetries = chunkRetries;
-            return this;
-        }
-
-        public void PartChunkWhenFail(bool partChunkWhenFail)
-        {
-            _partChunkWhenFail = partChunkWhenFail;
-        }
+        public int ChunkSize { get; set; } = 1000;
+        public int ChunkRetries { get; set; } = 5;
+        private bool PartChunkWhenFail { get; set; } = true;
     }
 }

@@ -58,6 +58,10 @@
       <HintPath>..\packages\NLog.4.3.1\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SmartFormat, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SmartFormat.NET.1.6.1.0\lib\net40\SmartFormat.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -68,20 +72,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Common\Check.cs">
+      <Link>Utils\Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\DebugCheck.cs">
+      <Link>Utils\DebugCheck.cs</Link>
+    </Compile>
     <Compile Include="Callbacks\AfterBulkTaskRun.cs" />
     <Compile Include="Callbacks\BeforeBulkTaskRun.cs" />
     <Compile Include="BulkTask.cs" />
     <Compile Include="Configuration\BulkTaskConfiguration.cs" />
     <Compile Include="Bulkzor.cs" />
     <Compile Include="Configuration\ChunkConfiguration.cs" />
-    <Compile Include="Errors\IHandleIndexErrors.cs" />
-    <Compile Include="Errors\IndexErrorsHandler.cs" />
+    <Compile Include="Errors\IndexErrorHandler.cs" />
     <Compile Include="Models\Chunk.cs" />
     <Compile Include="Models\ChunkStore.cs" />
     <Compile Include="Processors\ChunkProcessor.cs" />
-    <Compile Include="Processors\IProcessChunks.cs" />
-    <Compile Include="Processors\IProcessData.cs" />
-    <Compile Include="Indexers\IIndexObjects.cs" />
+    <Compile Include="Indexers\IObjectIndexer.cs" />
     <Compile Include="Processors\DataProcessor.cs" />
     <Compile Include="Indexers\NestObjectsIndexer.cs" />
     <Compile Include="Results\IndexObjectsResult.cs" />
@@ -93,7 +100,7 @@
     <Compile Include="Storage\InFileObjectsStorage.cs" />
     <Compile Include="Storage\IStoreObjects.cs" />
     <Compile Include="Types\IndexingError.cs" />
-    <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utilities\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

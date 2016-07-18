@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BFBE1A80-1F16-4C65-BEB2-9039B7C8EF0E}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{29F72063-288D-466A-94D8-07A6BE14220E}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bulkzor.Executor</RootNamespace>
-    <AssemblyName>Bulkzor.Executor</AssemblyName>
+    <RootNamespace>Bulkzor.Executor.Tests</RootNamespace>
+    <AssemblyName>Bulkzor.Executor.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,16 +30,36 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Common.Logging.Core.3.3.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    <Reference Include="ExpectedObjects, Version=1.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExpectedObjects.1.2.3\lib\net40\ExpectedObjects.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SmartFormat, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SmartFormat.NET.1.6.1.0\lib\net40\SmartFormat.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Should, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Should.1.1.20\lib\Should.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SpecsFor, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SpecsFor.5.0.0\lib\net40\SpecsFor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StructureMap, Version=4.1.3.394, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\structuremap.4.1.3.394\lib\net40\StructureMap.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StructureMap.Net4, Version=4.1.3.394, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\structuremap.4.1.3.394\lib\net40\StructureMap.Net4.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -54,39 +72,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Common\Check.cs">
-      <Link>Utilities\Check.cs</Link>
-    </Compile>
-    <Compile Include="..\Common\DebugCheck.cs">
-      <Link>Utilities\DebugCheck.cs</Link>
-    </Compile>
-    <Compile Include="Configurations\BaseBulkTaskConfiguration.cs" />
-    <Compile Include="ConfigurationFileReader.cs" />
-    <Compile Include="Configurations\IBulkTaskConfiguration.cs" />
-    <Compile Include="Helpers\FileManager.cs" />
-    <Compile Include="Helpers\IFileManager.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ConfigurationFileReader\WhenCreateSqlTasks.cs" />
+    <Compile Include="Fakes\FakeFileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Configurations\SqlServerBulkTaskConfiguration.cs" />
+    <Compile Include="SqlServerTaskConfigurationTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Bulkzor.File\Bulkzor.File.csproj">
-      <Project>{222a2b51-fb91-4ec0-8d1b-6548db350ed1}</Project>
-      <Name>Bulkzor.File</Name>
+    <ProjectReference Include="..\Bulkzor.Executor\Bulkzor.Executor.csproj">
+      <Project>{BFBE1A80-1F16-4C65-BEB2-9039B7C8EF0E}</Project>
+      <Name>Bulkzor.Executor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bulkzor.SqlServer\Bulkzor.SqlServer.csproj">
-      <Project>{d10608af-91a4-4203-90b4-b29f54df4b98}</Project>
+      <Project>{D10608AF-91A4-4203-90B4-B29F54DF4B98}</Project>
       <Name>Bulkzor.SqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bulkzor\Bulkzor.csproj">
-      <Project>{2ce375bc-1e1b-4511-a8fc-bc8a3641d62d}</Project>
+      <Project>{2CE375BC-1E1B-4511-A8FC-BC8A3641D62D}</Project>
       <Name>Bulkzor</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

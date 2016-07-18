@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor", "Bulkzor\Bulkzor.csproj", "{2CE375BC-1E1B-4511-A8FC-BC8A3641D62D}"
 EndProject
@@ -12,6 +12,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.Tests", "Bulkzor.Tests\Bulkzor.Tests.csproj", "{D52BFC8E-02D5-4267-81AA-4AE9447BD184}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.Executor", "Bulkzor.Executor\Bulkzor.Executor.csproj", "{BFBE1A80-1F16-4C65-BEB2-9039B7C8EF0E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{93ED6208-AB9C-47FF-8764-48799829E3CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bulkzor.Executor.Tests", "Bulkzor.Executor.Tests\Bulkzor.Executor.Tests.csproj", "{29F72063-288D-466A-94D8-07A6BE14220E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +43,16 @@ Global
 		{BFBE1A80-1F16-4C65-BEB2-9039B7C8EF0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFBE1A80-1F16-4C65-BEB2-9039B7C8EF0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFBE1A80-1F16-4C65-BEB2-9039B7C8EF0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29F72063-288D-466A-94D8-07A6BE14220E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29F72063-288D-466A-94D8-07A6BE14220E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29F72063-288D-466A-94D8-07A6BE14220E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29F72063-288D-466A-94D8-07A6BE14220E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D52BFC8E-02D5-4267-81AA-4AE9447BD184} = {93ED6208-AB9C-47FF-8764-48799829E3CF}
+		{29F72063-288D-466A-94D8-07A6BE14220E} = {93ED6208-AB9C-47FF-8764-48799829E3CF}
 	EndGlobalSection
 EndGlobal

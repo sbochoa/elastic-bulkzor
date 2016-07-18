@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bulkzor.Executor.Configurations;
-using Bulkzor.Utils;
+using Bulkzor.Executor.Helpers;
+using Bulkzor.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace Bulkzor.Executor
@@ -10,47 +11,41 @@ namespace Bulkzor.Executor
     public class ConfigurationFileReader
     {
         private readonly string _configurationFilePath;
+        private readonly IFileManager _fileManager;
 
-        public ConfigurationFileReader(string configurationFilePath)
+        public ConfigurationFileReader(string configurationFilePath, IFileManager fileManager)
         {
             _configurationFilePath = configurationFilePath;
+            _fileManager = fileManager;
         }
 
         public IReadOnlyList<BulkTask> CreateTasks()
         {
-            var configurationJson = System.IO.File.ReadAllText(_configurationFilePath);
+            var configurationJson = _fileManager.ReadTextFromFile(_configurationFilePath);
             var configurationJObject = JObject.Parse(configurationJson);
 
-            var uri = GetHostUri(configurationJObject);
+            var tasks = configurationJObject.GetConfigurationValue<JArray>("tasks");
 
-            var tasks = configurationJObject.GetConfigurationValue<JArray>("tasks", required:true);
-
-            return tasks.Children<JObject>().Select(task => CreateBulkTask(task, uri)).ToList();
+            return tasks.Children<JObject>().Select(CreateBulkTask).ToList();
         }
 
-        private static BulkTask CreateBulkTask(JObject task, Uri uri)
+        private static BulkTask CreateBulkTask(JObject task)
         {
-            var type = task.GetConfigurationValue<string>("type", required: true);
-            ITaskConfiguration taskConfiguration;
+            var type = task.GetConfigurationValue<string>("type");
+            IBulkTaskConfiguration bulkTaskConfiguration;
 
             if (type == "sqlserver")
             {
-                taskConfiguration = new SqlServerTaskConfiguration(task, uri);
+                bulkTaskConfiguration = new SqlServerBulkTaskConfiguration(task);
             }
             else
             {
                 throw new InvalidOperationException("Invalid Task Type");
             }
 
-            return taskConfiguration.CreateTask();
-        }
+            var taskName = task.GetConfigurationValue<string>("name");
 
-        private static Uri GetHostUri(JObject configurationJObject)
-        {
-            var host = configurationJObject.GetConfigurationValue<string>("host", required: true);
-            var port = configurationJObject.GetConfigurationValue<int>("port", required: true);
-            var uri = new Uri($"{host.TrimEnd('/')}:{port}");
-            return uri;
+            return bulkTaskConfiguration.CreateTask(taskName);
         }
     }
 }

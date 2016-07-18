@@ -1,68 +1,88 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Bulkzor.Models;
 using Bulkzor.Results;
 using Common.Logging;
 
 namespace Bulkzor.Processors
 {
-    public class DataProcessor : IProcessData
+    public class DataProcessor
     {
-        private readonly IProcessChunks _chunksIndexer;
+        private readonly ChunkProcessor _chunkProcessor;
         private readonly ILog _logger;
+        private readonly IList<Chunk> _chunks = new List<Chunk>(); 
 
-        public DataProcessor(IProcessChunks chunksIndexer, ILog logger)
+        public DataProcessor(ChunkProcessor chunkProcessor, ILog logger)
         {
-            _chunksIndexer = chunksIndexer;
+            _chunkProcessor = chunkProcessor;
             _logger = logger;
         }
 
-        public ObjectsProcessedResult IndexData(IEnumerable<object> data, Func<object, string> indexNameFunc, string typeName, int chunkSize)
+        private Chunk GetChunkByIndexName(string indexName, string typeName)
         {
-            var chunkStore = new ChunkStore(indexNameFunc, typeName, chunkSize);
-
-            var objectsProcessed = 0;
-            var objectsNotProcessed = 0;
-            var objectsNotProcessedStored = 0;
-            var objectCount = 0;
-
-            Action indexDataChunk = () =>
+            var chunk = _chunks.FirstOrDefault(x => x.HasIndexName(indexName));
+            if (chunk != null)
             {
-                var result = _chunksIndexer.ProcessChunks(chunkStore.Chunks);
-                objectsProcessed += result.ObjectsProcessed;
-                objectsNotProcessed += result.ObjectsNotProcessed;
-                objectsNotProcessedStored += result.ObjectsNotProcessedStored;
-            };
+                return chunk;
+            }
+
+            chunk = new Chunk(indexName, typeName);
+            _chunks.Add(chunk);
+            return chunk;
+        }
+
+        public ObjectsProcessedResult IndexData(IEnumerable<object> data, Func<object, string> indexNameBuilder, string typeName)
+        {
+            var objectCount = 0;
+            var result = new ObjectsProcessedResult();
 
             var watch = new Stopwatch();
-
             watch.Start();
 
             _logger.Info($"Started to index data");
 
             foreach (var @object in data)
             {
-                if (chunkStore.IsFull)
-                {
-                    indexDataChunk();
-                    chunkStore.ClearChunks();
-                }
+                var indexName = indexNameBuilder(@object);
+                var chunk = GetChunkByIndexName(indexName, typeName);
+                chunk.Add(@object);
+                var processChunkResult = ProcessChunk(chunk);
+                result.Add(processChunkResult);
 
-                chunkStore.AddObjectToChunk(@object);
-                objectCount++;
+                ++objectCount;
             }
 
-            if (chunkStore.HasData)
-            {
-                indexDataChunk();
-            }
-
+            ProcessPendingChunks(result);
             watch.Stop();
 
-            _logger.Info($"Index data ended - Total:{objectCount} Indexed:{objectsProcessed} Not Indexed:{objectsNotProcessed} Took:{watch.Elapsed.ToString("g")}");
+            _logger.Info($"Index data ended - Total:{objectCount} Indexed:{result.ObjectsProcessed} Not Indexed:{result.ObjectsNotProcessed} Took:{watch.Elapsed.ToString("g")}");
 
-            return new ObjectsProcessedResult(objectsProcessed, objectsNotProcessed, objectsNotProcessedStored);
+            return result;
+        }
+
+        private void ProcessPendingChunks(ObjectsProcessedResult result)
+        {
+            foreach (var chunk in _chunks)
+            {
+                var processChunkResult = _chunkProcessor.ProcessChunk(chunk);
+                result.Add(processChunkResult);
+            }
+
+            _chunks.Clear();
+        }
+
+        private ObjectsProcessedResult ProcessChunk(Chunk chunk)
+        {
+            if (_chunkProcessor.IsChunkFull(chunk))
+            {
+                var result = _chunkProcessor.ProcessChunk(chunk);
+                _chunks.Remove(chunk);
+                return result;
+            }
+
+            return ObjectsProcessedResult.Default;
         }
     }
 }

@@ -5,20 +5,20 @@ using Bulkzor.Indexers;
 using Bulkzor.Results;
 using Bulkzor.Storage;
 using Bulkzor.Types;
-using Bulkzor.Utils;
+using Bulkzor.Utilities;
 using Common.Logging;
 using static System.String;
 
 namespace Bulkzor.Errors
 {
-    public class IndexErrorsHandler : IHandleIndexErrors
+    public class IndexErrorHandler
     {
-        private readonly IIndexObjects _objectsIndexer;
+        private readonly IObjectIndexer _objectsIndexer;
         private readonly IStoreObjects _objectsStore;
         private readonly ILog _logger;
         private const int PartsQuantity = 3;
 
-        public IndexErrorsHandler(IIndexObjects objectsIndexer, IStoreObjects objectsStore, ILog logger)
+        public IndexErrorHandler(IObjectIndexer objectsIndexer, IStoreObjects objectsStore, ILog logger)
         {
             _objectsIndexer = objectsIndexer;
             _objectsStore = objectsStore;

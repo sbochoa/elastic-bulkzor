@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using Bulkzor.Executor.Helpers;
 
 namespace Bulkzor.Executor
 {
@@ -12,7 +9,7 @@ namespace Bulkzor.Executor
         {
             var configurationFilePath = args[0];
 
-            var tasks = new ConfigurationFileReader(configurationFilePath).CreateTasks();
+            var tasks = new ConfigurationFileReader(configurationFilePath, new FileManager()).CreateTasks();
 
             Bulkzor.RunBulks(tasks.ToArray());
         }

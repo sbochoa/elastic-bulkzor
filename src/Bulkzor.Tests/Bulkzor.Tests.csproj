@@ -76,11 +76,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fakes\FakeIIndexObjects.cs" />
+    <Compile Include="Fakes\FakeObjectsIndexer.cs" />
     <Compile Include="Fakes\FakeIndexErrorsHandler.cs" />
-    <Compile Include="Fakes\FakeIProcessChunks.cs" />
+    <Compile Include="Fakes\FakeChunkProcessor.cs" />
+    <Compile Include="Fakes\FakeObjectsStore.cs" />
     <Compile Include="Fakes\FakeSource.cs" />
     <Compile Include="Fakes\Person.cs" />
+    <Compile Include="Processors\BaseProcessorTests.cs" />
     <Compile Include="Processors\ChunkProcessorTests.cs" />
     <Compile Include="Processors\DataProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

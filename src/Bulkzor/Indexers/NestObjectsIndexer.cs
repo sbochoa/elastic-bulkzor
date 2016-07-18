@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Bulkzor.Results;
 using Bulkzor.Types;
-using Bulkzor.Utils;
+using Bulkzor.Utilities;
 using Common.Logging;
 using Nest;
 
 namespace Bulkzor.Indexers
 {
-    public class NestObjectsIndexer : IIndexObjects
+    public class NestObjectsIndexer : IObjectIndexer
     {
         private readonly ElasticClient _client;
         private readonly ILog _logger;

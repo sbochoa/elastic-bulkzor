@@ -11,8 +11,22 @@ namespace Bulkzor.Results
             ObjectsNotProcessedStored = objectsNotProcessedStored;
         }
 
-        public int ObjectsProcessed { get; }
-        public int ObjectsNotProcessed { get; }
-        public int ObjectsNotProcessedStored { get; }
+        internal ObjectsProcessedResult()
+            :this(0, 0, 0)
+        {
+            
+        }
+
+        public static ObjectsProcessedResult Default { get; } = new ObjectsProcessedResult(0, 0, 0);
+        public int ObjectsProcessed { get; private set; }
+        public int ObjectsNotProcessed { get; private set; }
+        public int ObjectsNotProcessedStored { get; private set; }
+
+        public void Add(ObjectsProcessedResult result)
+        {
+            ObjectsProcessed += result.ObjectsProcessed;
+            ObjectsNotProcessed += result.ObjectsNotProcessed;
+            ObjectsNotProcessedStored += result.ObjectsNotProcessedStored;
+        }
     }
 }

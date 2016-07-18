@@ -56,9 +56,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Common\Check.cs">
+      <Link>Utilities\Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\DebugCheck.cs">
+      <Link>Utilities\DebugCheck.cs</Link>
+    </Compile>
     <Compile Include="SqlServerQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlServerServiceBrokerQueue.cs" />
+    <Compile Include="Utilities\DynamicXml.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bulkzor\Bulkzor.csproj">

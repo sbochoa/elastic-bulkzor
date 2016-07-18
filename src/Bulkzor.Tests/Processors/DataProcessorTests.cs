@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
+using Bulkzor.Configuration;
 using Bulkzor.Processors;
-using Bulkzor.Results;
 using Bulkzor.Tests.Fakes;
-using Common.Logging;
-using Moq;
+using Bulkzor.Types;
 using NUnit.Framework;
 using Shouldly;
 
@@ -12,15 +11,21 @@ using Shouldly;
 namespace Bulkzor.Tests.Processors
 {
     [TestFixture]
-    public class DataProcessorTests
+    public class DataProcessorTests : BaseProcessorTests
     {
-        private readonly Func<object, string> _indexNameFunc = person => "IndexName";
-        private readonly string _typeName = "TypeName";
+        private readonly Func<object, string> _indexNameFunc = person => "WithIndexName";
+        private readonly string _typeName = "WithTypeName";
 
-        private DataProcessor GetDataProcessor(IProcessChunks chunksProcessor)
+        private DataProcessor GetDataProcessor(ChunkProcessor chunksProcessor)
         {
-            return new DataProcessor(chunksProcessor, LogManager.GetLogger("MyLogger"));
+            return new DataProcessor(chunksProcessor, Logger);
         }
+
+        private ChunkProcessor GetChunkProcessor(int chunkSize)
+        {
+            return new ChunkProcessor(new ChunkConfiguration { ChunkSize = chunkSize }, FakeObjectsIndexer, GetIndexErrorHandler(), Logger);
+        }
+        
 
         [Test]
         [TestCase(10, 5)]
@@ -29,10 +34,11 @@ namespace Bulkzor.Tests.Processors
         public void IndexData_WhenChunkProcessorWorksCorrectly_ShouldReturnZeroObjectsNotProcessed(int objectsQuantity, int chunkSize)
         {
             var data = new FakeSource(objectsQuantity).GetData().ToList();
+            var fakeChunkProcessor = GetChunkProcessor(chunkSize);
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks(chunks => new ObjectsProcessedResult(chunks.Sum(c => c.Data.Count), 0, 0)));
+            var dataProcessor = GetDataProcessor(fakeChunkProcessor);
 
-            var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);
+            var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName);
 
             result.ObjectsProcessed.ShouldBe(objectsQuantity);
             result.ObjectsNotProcessed.ShouldBe(0);
@@ -46,15 +52,19 @@ namespace Bulkzor.Tests.Processors
             (int objectsQuantity, int chunkSize, int numberOfObjectsNotProcessed)
         {
             var data = new FakeSource(objectsQuantity).GetData().ToList();
-            var numberOfChunks = (int)Math.Ceiling((double)objectsQuantity/chunkSize);
+            var dataNotProcessed = data.Where((x, i) => i < 3).ToList();
 
-            var dataProcessor = GetDataProcessor(new FakeIProcessChunks(chunks => new ObjectsProcessedResult
-                                                            (chunks.Sum(c => c.Data.Count) - numberOfObjectsNotProcessed, numberOfObjectsNotProcessed, 0)));
+            var fakeChunkProcessor = new ChunkProcessor(new ChunkConfiguration { ChunkSize = chunkSize }
+                                                    , new FakeObjectsIndexer() { IndexingError = IndexingError.Unknow, ObjectsNotIndexed = dataNotProcessed }
+                                                    , null
+                                                    , Logger);
 
-            var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName, chunkSize);
+            var dataProcessor = GetDataProcessor(fakeChunkProcessor);
 
-            result.ObjectsProcessed.ShouldBe(objectsQuantity - (numberOfObjectsNotProcessed * numberOfChunks));
-            result.ObjectsNotProcessed.ShouldBe(numberOfObjectsNotProcessed * numberOfChunks);
+            var result = dataProcessor.IndexData(data, _indexNameFunc, _typeName);
+
+            result.ObjectsProcessed.ShouldBe(objectsQuantity - numberOfObjectsNotProcessed);
+            result.ObjectsNotProcessed.ShouldBe(numberOfObjectsNotProcessed);
         }
     }
 }

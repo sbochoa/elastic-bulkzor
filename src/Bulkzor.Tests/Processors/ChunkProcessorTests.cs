@@ -1,27 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using Bulkzor.Errors;
+using Bulkzor.Configuration;
 using Bulkzor.Indexers;
 using Bulkzor.Models;
 using Bulkzor.Processors;
-using Bulkzor.Results;
 using Bulkzor.Tests.Fakes;
 using Bulkzor.Types;
-using Common.Logging;
 using NUnit.Framework;
 using Shouldly;
 
 namespace Bulkzor.Tests.Processors
 {
     [TestFixture]
-    public class ChunkProcessorTests
+    public class ChunkProcessorTests : BaseProcessorTests
     {
-        private readonly Func<object, string> _indexNameFunc = person => "IndexName";
-        private readonly string _typeName = "TypeName";
+        private readonly Func<object, string> _indexNameFunc = person => "WithIndexName";
+        private readonly string _typeName = "WithTypeName";
         private static readonly List<Person> EmptyPersonList = new List<Person>();
-        private ChunkProcessor GetChunkProcessor(IIndexObjects objectsIndexer, IHandleIndexErrors indexErrorsHandler)
+
+        private ChunkProcessor GetChunkProcessor(IObjectIndexer objectsIndexer)
         {
-            return new ChunkProcessor(objectsIndexer, indexErrorsHandler, LogManager.GetLogger("MyLogger"));
+            return new ChunkProcessor(new ChunkConfiguration(), objectsIndexer, GetIndexErrorHandler(), Logger);
+        }
+
+        private ChunkProcessor GetChunkProcessor()
+        {
+            return GetChunkProcessor(FakeObjectsIndexer);
         }
 
         [Test]
@@ -29,27 +33,10 @@ namespace Bulkzor.Tests.Processors
         [TestCase(15)]
         public void ProcessChunks_WhenObjectsIndexerWorksCorrectly_ShouldReturnCorrectResult(int objectsQuantity)
         {
-            var chunkProcessor = GetChunkProcessor
-                (new FakeIIndexObjects(objects => new IndexObjectsResult(objects, EmptyPersonList, IndexingError.None)), null);
+            var chunkProcessor = GetChunkProcessor();
 
-            var chunks = GetChunks(objectsQuantity);
-            var processChunksResult = chunkProcessor.ProcessChunks(chunks);
-
-            processChunksResult.ObjectsProcessed.ShouldBe(objectsQuantity);
-            processChunksResult.ObjectsNotProcessed.ShouldBe(0);
-        }
-
-        [Test]
-        [TestCase(10)]
-        [TestCase(15)]
-        public void ProcessChunks_WhenObjectsIndexerReturnsLengthExceeded_And_WhenIndexErrorsHandlesErrorCorrectly_ShouldReturnCorrectResult(int objectsQuantity)
-        {
-            var chunkProcessor = GetChunkProcessor
-                (new FakeIIndexObjects(objects => new IndexObjectsResult(EmptyPersonList, objects, IndexingError.LengthExceeded))
-                , new FakeIndexErrorsHandler((error, objectsNotIndexed) => new IndexObjectsResult(objectsNotIndexed, EmptyPersonList, IndexingError.None)));
-
-            var chunks = GetChunks(objectsQuantity);
-            var processChunksResult = chunkProcessor.ProcessChunks(chunks);
+            var chunk = GetChunk(objectsQuantity);
+            var processChunksResult = chunkProcessor.ProcessChunk(chunk);
 
             processChunksResult.ObjectsProcessed.ShouldBe(objectsQuantity);
             processChunksResult.ObjectsNotProcessed.ShouldBe(0);
@@ -58,34 +45,42 @@ namespace Bulkzor.Tests.Processors
         [Test]
         [TestCase(10)]
         [TestCase(15)]
-        public void ProcessChunks_WhenObjectsIndexerReturnsUnknowError_And_WhenIndexErrorsHandlesErrorCorrectly_ShouldReturnCorrectResult(int objectsQuantity)
+        public void ProcessChunks_WhenObjectsIndexerReturnsLengthExceeded_ShouldReturnCorrectResult(int objectsQuantity)
         {
-            var chunkProcessor = GetChunkProcessor
-                (new FakeIIndexObjects(objects => new IndexObjectsResult(EmptyPersonList, objects, IndexingError.Unknow))
-                , new FakeIndexErrorsHandler
-                    ((error, objectsNotIndexed) 
-                        => new IndexObjectsResult(EmptyPersonList, objectsNotIndexed, IndexingError.OnlyPartOfDocumentsIndexed, objectsNotIndexed)));
+            var chunk = GetChunk(objectsQuantity);
 
-            var chunks = GetChunks(objectsQuantity);
-            var processChunksResult = chunkProcessor.ProcessChunks(chunks);
+            var chunkProcessor = GetChunkProcessor(new FakeObjectsIndexer { IndexingError = IndexingError.LengthExceeded, ObjectsNotIndexed = chunk });
+
+            var processChunksResult = chunkProcessor.ProcessChunk(chunk);
+
+            processChunksResult.ObjectsProcessed.ShouldBe(objectsQuantity);
+            processChunksResult.ObjectsNotProcessed.ShouldBe(0);
+        }
+
+        [Test]
+        [TestCase(10)]
+        [TestCase(15)]
+        public void ProcessChunks_WhenObjectsIndexerReturnsUnknowError_ShouldReturnCorrectResult(int objectsQuantity)
+        {
+            var chunk = GetChunk(objectsQuantity);
+
+            var chunkProcessor = GetChunkProcessor(new FakeObjectsIndexer { IndexingError = IndexingError.Unknow, ObjectsNotIndexed = chunk });
+
+            var processChunksResult = chunkProcessor.ProcessChunk(chunk);
 
             processChunksResult.ObjectsProcessed.ShouldBe(0);
             processChunksResult.ObjectsNotProcessed.ShouldBe(objectsQuantity);
-            processChunksResult.ObjectsNotProcessedStored.ShouldBe(objectsQuantity);
         }
 
-        private IReadOnlyList<Chunk> GetChunks(int objectsQuantity)
+        private Chunk GetChunk(int objectsQuantity)
         {
-            var chunkStore = new ChunkStore(_indexNameFunc, _typeName, objectsQuantity);
-
             var data = new FakeSource(objectsQuantity).GetData();
 
-            foreach (var person in data)
-            {
-                chunkStore.AddObjectToChunk(person);
-            }
+            var chunk = new Chunk(_indexNameFunc(null), _typeName);
 
-            return chunkStore.Chunks;
+            chunk.AddRange(data);
+
+            return chunk;
         }
     }
 }

@@ -1,79 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
-using Bulkzor.Callbacks;
+using System.Linq;
 using Bulkzor.Configuration;
+using Bulkzor.Errors;
+using Bulkzor.Indexers;
 using Bulkzor.Processors;
+using Common.Logging;
+using Elasticsearch.Net;
+using Nest;
 
 namespace Bulkzor
 {
     public class BulkTask : IBulkTask
     {
-        private readonly ISource _source;
-        private readonly IEnumerable<dynamic> _data;
-        private readonly Func<dynamic, string> _indexNameFunc;
-        private readonly string _typeName;
-        private readonly BeforeBulkTaskRun _beforeBulkTaskRun;
-        private readonly AfterBulkTaskRun _afterBulkTaskRun;
-        private readonly OnBulkTaskError _onBulkTaskError;
+        private readonly BulkTaskConfiguration _bulkTaskConfiguration;
         private readonly ChunkConfiguration _chunkConfiguration;
-        private readonly IProcessData _dataProcessor;
+        private readonly ISource _source;
+        private readonly ILog _logger;
 
-        private BulkTask(ISource source, IEnumerable<dynamic> data, Func<dynamic, string> indexNameFunc, string typeName, BeforeBulkTaskRun beforeBulkTaskRun
-            , AfterBulkTaskRun afterBulkTaskRun, OnBulkTaskError onBulkTaskError
-            , ChunkConfiguration chunkConfiguration, IProcessData dataProcessor)
+        public BulkTaskConfiguration BulkTaskConfiguration => _bulkTaskConfiguration;
+
+        public BulkTask(BulkTaskConfiguration bulkTaskConfiguration, 
+                        ChunkConfiguration chunkConfiguration,
+                        ISource source, 
+                        ILog logger)
         {
-            _source = source;
-            _data = data;
-            _indexNameFunc = indexNameFunc;
-            _typeName = typeName;
-            _beforeBulkTaskRun = beforeBulkTaskRun;
-            _afterBulkTaskRun = afterBulkTaskRun;
-            _onBulkTaskError = onBulkTaskError;
+            _bulkTaskConfiguration = bulkTaskConfiguration;
             _chunkConfiguration = chunkConfiguration;
-            _dataProcessor = dataProcessor;
+            _source = source;
+            _logger = logger;
         }
-
-        public static BulkTask ConfigureWith(Action<BulkTaskConfiguration> configuration)
-        {
-            var bulkConfiguration = new BulkTaskConfiguration();
-            configuration(bulkConfiguration);
-
-            return new BulkTask(bulkConfiguration.GetSource
-                , bulkConfiguration.GetData
-                , bulkConfiguration.GetIndexNameFunc
-                , bulkConfiguration.GetTypeName
-                , bulkConfiguration.GetBeforeBulkTaskRun
-                , bulkConfiguration.GetAfterBulkTaskRun
-                , bulkConfiguration.GetOnBulkTaskError
-                , bulkConfiguration.GetChunkConfiguration
-                , bulkConfiguration.GetDataIndexer);
-        }  
 
         public void Run()
         {
             try
             {
-                _beforeBulkTaskRun?.Invoke();
-
                 var source = _source as IManagedSource;
 
                 source?.OpenConnection();
 
-                var result = _dataProcessor.IndexData(_data ?? _source.GetData(), _indexNameFunc, _typeName, _chunkConfiguration.GetChunkSize);
+                var documentProcessor = CreateDocumentProcessor(_bulkTaskConfiguration.GetFullHost());
+
+                var result = documentProcessor.IndexData(_source.GetData()
+                                                    , _bulkTaskConfiguration.GetIndexNameBuilder()
+                                                    , _bulkTaskConfiguration.TypeName);
 
                 source?.CloseConnection();
-
-                _afterBulkTaskRun?.Invoke(result);
             }
             catch (Exception ex)
             {
-                if (_onBulkTaskError == null)
-                {
-                    throw;
-                }
-
-                _onBulkTaskError?.Invoke(ex);
+                _logger.Error(ex);
+                throw;
             }
+
+         }
+
+        public DataProcessor CreateDocumentProcessor(string host)
+        {
+            var pool = new StaticConnectionPool(new []{ new Uri(host) });
+            var settings = new ConnectionSettings(pool);
+            var elasticClient = new ElasticClient(settings);
+            var objectIndexer = new NestObjectsIndexer(elasticClient, _logger);
+
+            return new DataProcessor
+                (new ChunkProcessor(_chunkConfiguration
+                                    , objectIndexer
+                                    , new IndexErrorHandler(objectIndexer, null, _logger)
+                                    , _logger)
+                , _logger);
         }
     }
 }

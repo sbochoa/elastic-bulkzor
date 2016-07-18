@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.SqlClient;
+using Bulkzor.Utilities;
 using Dapper;
 
 namespace Bulkzor.SqlServer
@@ -7,15 +8,19 @@ namespace Bulkzor.SqlServer
     public class SqlServerQuery
         : IManagedSource
     {
+        public string SqlQueryQuery => _sqlQuery;
         private readonly string _connectionString;
-        private readonly string _sql;
+        private readonly string _sqlQuery;
         private readonly bool _buffered;
         private SqlConnection _connection;
 
-        public SqlServerQuery(string connectionString, string sql, bool buffered = false)
+        public SqlServerQuery(string connectionString, string sqlQuery, bool buffered = false)
         {
+            Check.NotEmpty(connectionString, "Connection String");
+            Check.NotEmpty(sqlQuery, "Sql Query");
+
             _connectionString = connectionString;
-            _sql = sql;
+            _sqlQuery = sqlQuery;
             _buffered = buffered;
         }
 
@@ -27,7 +32,7 @@ namespace Bulkzor.SqlServer
 
         public IEnumerable<object> GetData()
         {
-            return _connection.Query(_sql, buffered: _buffered);
+            return _connection.Query(_sqlQuery, buffered: _buffered);
         }
 
         public void CloseConnection()
