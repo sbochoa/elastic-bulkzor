@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Bulkzor.Configuration;
-using Bulkzor.Errors;
 using Bulkzor.Indexers;
 using Bulkzor.Processors;
+using Bulkzor.Storage;
 using Common.Logging;
 using Elasticsearch.Net;
 using Nest;
@@ -39,7 +37,7 @@ namespace Bulkzor
 
                 source?.OpenConnection();
 
-                var documentProcessor = CreateDocumentProcessor(_bulkTaskConfiguration.GetFullHost());
+                var documentProcessor = CreateDocumentProcessor(_bulkTaskConfiguration.GetFullHost(), _bulkTaskConfiguration.TaskName);
 
                 var result = documentProcessor.IndexData(_source.GetData()
                                                     , _bulkTaskConfiguration.GetIndexNameBuilder()
@@ -55,7 +53,7 @@ namespace Bulkzor
 
          }
 
-        public DataProcessor CreateDocumentProcessor(string host)
+        public DataProcessor CreateDocumentProcessor(string host, string taskName)
         {
             var pool = new StaticConnectionPool(new []{ new Uri(host) });
             var settings = new ConnectionSettings(pool);
@@ -65,7 +63,7 @@ namespace Bulkzor
             return new DataProcessor
                 (new ChunkProcessor(_chunkConfiguration
                                     , objectIndexer
-                                    , new IndexErrorHandler(objectIndexer, null, _logger)
+                                    , new InFileObjectsStorage(taskName)
                                     , _logger)
                 , _logger);
         }

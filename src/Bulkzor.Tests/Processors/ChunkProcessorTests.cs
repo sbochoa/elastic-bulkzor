@@ -20,7 +20,7 @@ namespace Bulkzor.Tests.Processors
 
         private ChunkProcessor GetChunkProcessor(IObjectIndexer objectsIndexer)
         {
-            return new ChunkProcessor(new ChunkConfiguration(), objectsIndexer, GetIndexErrorHandler(), Logger);
+            return new ChunkProcessor(new ChunkConfiguration(), objectsIndexer, new FakeObjectsStore(), Logger);
         }
 
         private ChunkProcessor GetChunkProcessor()
@@ -53,8 +53,8 @@ namespace Bulkzor.Tests.Processors
 
             var processChunksResult = chunkProcessor.ProcessChunk(chunk);
 
-            processChunksResult.ObjectsProcessed.ShouldBe(objectsQuantity);
-            processChunksResult.ObjectsNotProcessed.ShouldBe(0);
+            processChunksResult.ObjectsProcessed.ShouldBe(0);
+            processChunksResult.ObjectsNotProcessed.ShouldBe(objectsQuantity);
         }
 
         [Test]

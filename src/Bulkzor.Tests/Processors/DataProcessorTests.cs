@@ -23,7 +23,7 @@ namespace Bulkzor.Tests.Processors
 
         private ChunkProcessor GetChunkProcessor(int chunkSize)
         {
-            return new ChunkProcessor(new ChunkConfiguration { ChunkSize = chunkSize }, FakeObjectsIndexer, GetIndexErrorHandler(), Logger);
+            return new ChunkProcessor(new ChunkConfiguration { ChunkSize = chunkSize }, FakeObjectsIndexer, new FakeObjectsStore(), Logger);
         }
         
 
@@ -56,7 +56,7 @@ namespace Bulkzor.Tests.Processors
 
             var fakeChunkProcessor = new ChunkProcessor(new ChunkConfiguration { ChunkSize = chunkSize }
                                                     , new FakeObjectsIndexer() { IndexingError = IndexingError.Unknow, ObjectsNotIndexed = dataNotProcessed }
-                                                    , null
+                                                    , new FakeObjectsStore()
                                                     , Logger);
 
             var dataProcessor = GetDataProcessor(fakeChunkProcessor);

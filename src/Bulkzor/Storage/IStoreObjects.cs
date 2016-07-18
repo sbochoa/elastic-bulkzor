@@ -5,6 +5,6 @@ namespace Bulkzor.Storage
 {
     public interface IStoreObjects
     {
-        void StoreObjects(IEnumerable<object> objects, string indexName, string typeName);
+        void StoreObjects(string directoryName, IEnumerable<object> objects, string indexName, string typeName);
     }
 }

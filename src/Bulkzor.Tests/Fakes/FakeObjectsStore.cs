@@ -6,9 +6,8 @@ namespace Bulkzor.Tests.Fakes
 {
     public class FakeObjectsStore : IStoreObjects
     {
-        public void StoreObjects(IEnumerable<object> objects, string indexName, string typeName)
+        public void StoreObjects(string directoryName, IEnumerable<object> objects, string indexName, string typeName)
         {
-            
         }
     }
 }
