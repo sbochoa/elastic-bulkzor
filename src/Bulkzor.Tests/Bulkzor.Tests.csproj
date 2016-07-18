@@ -76,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtensionTests.cs" />
     <Compile Include="Fakes\FakeObjectsIndexer.cs" />
     <Compile Include="Fakes\FakeIndexErrorsHandler.cs" />
     <Compile Include="Fakes\FakeChunkProcessor.cs" />

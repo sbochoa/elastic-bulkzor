@@ -23,7 +23,18 @@ namespace Bulkzor.Indexers
 
         public IndexObjectsResult Index(IReadOnlyList<object> objects, string indexName, string typeName)
         {
-            IBulkResponse response = _client.IndexMany(objects, indexName, typeName);
+
+            var bulkDescriptor = new BulkDescriptor();
+
+            foreach (var @object in objects)
+            {
+                bulkDescriptor.Index<object>(x => x.Document(@object)
+                                                    .Id(new Id(@object.GetIdFromUnknowObject()))
+                                                    .Type(new TypeName() { Name = typeName })
+                                                    .Index(new IndexName() { Name = indexName }));
+            }
+            
+            IBulkResponse response = _client.Bulk(bulkDescriptor);
 
             IndexingError indexingError;
 

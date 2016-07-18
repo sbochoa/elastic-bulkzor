@@ -57,7 +57,7 @@ namespace Bulkzor.Processors
             ProcessPendingChunks(result);
             watch.Stop();
 
-            _logger.Info($"Index data ended - Total:{objectCount} Indexed:{result.ObjectsProcessed} Not Indexed:{result.ObjectsNotProcessed} Took:{watch.Elapsed.ToString("g")}");
+            _logger.Info($"Index data ended - Total: {objectCount} Indexed: {result.ObjectsProcessed} Not Indexed: {result.ObjectsNotProcessed} Took: {watch.Elapsed.ToString("g")}");
 
             return result;
         }

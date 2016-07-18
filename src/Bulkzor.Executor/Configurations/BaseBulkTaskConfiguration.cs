@@ -14,5 +14,6 @@ namespace Bulkzor.Executor.Configurations
 
         protected int ChunkSize => _taskConfigurationObject.GetConfigurationValue("chunkSize", 1000);
         protected string IndexTemplate => _taskConfigurationObject.GetConfigurationValue<string>("index");
+        protected string Type => _taskConfigurationObject.GetConfigurationValue<string>("type");
     }
 }

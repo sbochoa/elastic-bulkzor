@@ -2,6 +2,7 @@
 using System.Linq;
 using Bulkzor.Executor.Tests.Fakes;
 using Bulkzor.SqlServer;
+using Common.Logging;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Should;
@@ -28,21 +29,23 @@ namespace Bulkzor.Executor.Tests.ConfigurationFileReader
                 {
                     new
                     {
-                        type = "sqlserver",
-                        name = "simplequery2",
+                        taskType = "sqlserver",
+                        taskName = "simplequery2",
                         connectionString = "connectionString",
                         query = "query2",
                         index = "index_name",
+                        type = "type",
                         host = "http://localhost",
                         port = 22
                     },
                     new
                     {
-                        type = "sqlserver",
-                        name = "simplequery3",
+                        taskType = "sqlserver",
+                        taskName = "simplequery3",
                         connectionString = "connectionString",
                         query = "query3",
                         index = "index_name",
+                        type = "type",
                         host = "http://localhost",
                         port = 22
                     }
@@ -54,7 +57,7 @@ namespace Bulkzor.Executor.Tests.ConfigurationFileReader
 
         protected override void InitializeClassUnderTest()
         {
-            SUT = new Executor.ConfigurationFileReader(ConfigurationFilePath, _fileManager);
+            SUT = new Executor.ConfigurationFileReader(ConfigurationFilePath, _fileManager, LogManager.GetLogger("test"));
         }
 
         protected override void When()

@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Threading;
+using Common.Logging;
+using Common.Logging.Configuration;
+using Common.Logging.NLog;
+using NLog.Config;
+using NLog.Targets;
 using SmartFormat;
 
 namespace Bulkzor.Configuration
@@ -30,7 +35,7 @@ namespace Bulkzor.Configuration
         {
             return $"{Host}:{Port}";
         }
-            
+
         //private ISource _source;
         //private string _typeName;
         //private Func<object, string> _indexNameBuilder;
@@ -48,7 +53,7 @@ namespace Bulkzor.Configuration
         //public Func<object, string> IndexNameBuilder => _indexNameBuilder;
         //public ChunkConfiguration ChunkConfiguration => _chunkConfiguration ?? (_chunkConfiguration = new ChunkConfiguration());
         //public ObjectIndexer DocumentIndexer => _documentIndexer ?? (_documentIndexer = CreateNestDocumentIndexer());
-        
+
         //internal IEnumerable<object> Data => _data;
         //public ILog Logger => _logger ?? (_logger = LogManager.GetLogger(_taskName ?? _defaultTaskName));
 
@@ -92,7 +97,7 @@ namespace Bulkzor.Configuration
         //    _indexNameBuilder = @object => indexName;
         //    return this;
         //}
-        
+
         //public BulkTaskConfiguration WithCustomDocumentIndexer(ObjectIndexer documentsIndexer)
         //{
         //    _documentIndexer = documentsIndexer;
@@ -121,33 +126,33 @@ namespace Bulkzor.Configuration
         //    return new NestObjectsIndexer(client, Logger);
         //}
 
-        //public BulkTaskConfiguration WithNLogLogger()
-        //{
-        //    var config = new LoggingConfiguration();
+        public BulkTaskConfiguration WithNLogLogger()
+        {
+            var config = new LoggingConfiguration();
 
-        //    var consoleTarget = new ColoredConsoleTarget();
-        //    config.AddTarget("console", consoleTarget);
+            var consoleTarget = new ColoredConsoleTarget();
+            config.AddTarget("console", consoleTarget);
 
-        //    var fileTarget = new FileTarget();
-        //    config.AddTarget("file", fileTarget);
+            var fileTarget = new FileTarget();
+            config.AddTarget("file", fileTarget);
 
-        //    consoleTarget.Layout = @"${date:format=HH\:mm\:ss} ${logger} ${message}";
-        //    fileTarget.FileName = "${basedir}/logs/${logger}.txt";
-        //    fileTarget.Layout = "${message}";
+            consoleTarget.Layout = @"${date:format=HH\:mm\:ss} ${logger} ${message}";
+            fileTarget.FileName = "${basedir}/logs/${logger}.txt";
+            fileTarget.Layout = "${message}";
 
-        //    var rule1 = new LoggingRule("*", LogLevel.Debug, consoleTarget);
-        //    config.LoggingRules.Add(rule1);
+            var rule1 = new LoggingRule("*", NLog.LogLevel.Debug, consoleTarget);
+            config.LoggingRules.Add(rule1);
 
-        //    var rule2 = new LoggingRule("*", LogLevel.Debug, fileTarget);
-        //    config.LoggingRules.Add(rule2);
+            var rule2 = new LoggingRule("*", NLog.LogLevel.Debug, fileTarget);
+            config.LoggingRules.Add(rule2);
 
-        //    NLog.LogManager.bulkTaskConfiguration = config;
+            NLog.LogManager.Configuration = config;
 
-        //    var properties = new NameValueCollection { };
+            var properties = new NameValueCollection { };
 
-        //    LogManager.Adapter = new NLogLoggerFactoryAdapter(properties);
+            LogManager.Adapter = new NLogLoggerFactoryAdapter(properties);
 
-        //    return this;
-        //}
+            return this;
+        }
     }
 }

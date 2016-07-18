@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Common.Logging;
@@ -23,10 +24,22 @@ namespace Bulkzor.Utilities
 
         public static string GetIdFromUnknowObject(this object unknowObject)
         {
-            var value = unknowObject.GetType().GetProperty("id", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic).GetValue(unknowObject);
+            Check.NotNull(unknowObject, nameof(unknowObject));
 
-            Check.NotNull(value, "Id Field");
+            dynamic unknowObjectDynamic = unknowObject;
+            object value;
 
+            var properties = unknowObject.GetType().GetProperties();
+
+            if (properties.Length <= 0)
+            {
+                value = unknowObjectDynamic.id ?? unknowObjectDynamic.Id;
+            }
+            else
+            {
+                value = properties.First(x => x.Name.ToLower() == "id").GetValue(unknowObject);
+                Check.NotNull(value, "Id Field");
+            }
             return value.ToString();
         }
 

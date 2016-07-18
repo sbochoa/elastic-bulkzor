@@ -44,7 +44,7 @@ namespace Bulkzor.Processors
                 _logger.Warn(logWithIndexDescription($"Error of type { indexDocumentsResult.Error.GetType()} ocurred indexing the chunk"));
             }
 
-            _logger.Info(logWithIndexDescription($"Ended index chunk - Indexed:{indexDocumentsResult.ObjectsIndexed} Not Indexed:{indexDocumentsResult.ObjectsNotIndexed}"));
+            _logger.Info(logWithIndexDescription($"Ended index chunk - Indexed: {indexDocumentsResult.ObjectsIndexed.Count} Not Indexed: {indexDocumentsResult.ObjectsNotIndexed.Count}"));
 
             return new ObjectsProcessedResult(indexDocumentsResult.ObjectsIndexed.Count, indexDocumentsResult.ObjectsNotIndexed.Count, indexDocumentsResult.ObjectsNotIndexedStored.Count);
         }
